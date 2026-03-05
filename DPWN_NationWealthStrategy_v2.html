@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPWN — Nation Wealth Strategy</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0F2B4C;
+  --navy-mid: #1A3F6B;
+  --navy-light: #2356A0;
+  --gold: #C4911A;
+  --gold-light: #E8B84B;
+  --gold-pale: #FBF3E0;
+  --teal: #1B6B7B;
+  --teal-light: #E6F3F6;
+  --red: #C0392B;
+  --red-light: #FDF0EE;
+  --slate: #4A5568;
+  --slate-light: #718096;
+  --bg: #F8F7F4;
+  --white: #FFFFFF;
+  --border: #D5D0C8;
+  --border-light: #EAE8E3;
+  --text: #1A1A1A;
+  --muted: #6B6560;
+  --green: #1E6B3C;
+  --green-light: #E8F5EE;
+  --purple: #5B2D8E;
+  --purple-light: #F0EAF8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;font-size:10pt;line-height:1.6;color:var(--text);background:var(--bg);}
+.page{width:920px;margin:0 auto;background:var(--white);}
+
+/* ── COVER ── */
+.cover{background:var(--navy);min-height:100vh;display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.cover-stripe{position:absolute;left:0;top:0;width:5px;height:100%;background:linear-gradient(180deg,var(--gold) 0%,var(--gold-light) 100%);}
+.cover-geo{position:absolute;right:-40px;top:-40px;width:420px;height:420px;opacity:.05;}
+.cover-geo2{position:absolute;right:60px;bottom:60px;width:200px;height:200px;opacity:.04;}
+.cover-main{position:relative;z-index:2;padding:70px 70px 0 70px;flex:1;display:flex;flex-direction:column;justify-content:center;}
+.cv-eyebrow{font-family:'DM Mono',monospace;font-size:8pt;color:var(--gold-light);letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.cv-eyebrow::before{content:'';display:block;width:28px;height:2px;background:var(--gold);}
+.cv-nation{font-family:'EB Garamond',serif;font-size:52pt;font-weight:600;color:white;line-height:1.0;margin-bottom:6px;letter-spacing:-.5px;}
+.cv-doc-type{font-family:'EB Garamond',serif;font-size:20pt;color:rgba(255,255,255,.6);font-style:italic;margin-bottom:28px;}
+.cv-rule{width:72px;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));margin-bottom:24px;}
+.cv-title{font-family:'DM Sans',sans-serif;font-size:13pt;font-weight:500;color:white;margin-bottom:8px;}
+.cv-desc{font-size:9.5pt;color:rgba(255,255,255,.5);line-height:1.75;max-width:440px;}
+.cv-badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:36px;}
+.cv-badge{font-family:'DM Mono',monospace;font-size:7.5pt;color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.12);padding:3px 9px;letter-spacing:.8px;}
+.cover-foot{position:relative;z-index:2;padding:24px 70px;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between;align-items:center;}
+.cf-left{font-family:'DM Mono',monospace;font-size:8pt;color:rgba(255,255,255,.3);line-height:1.9;}
+.cf-conf{font-family:'DM Mono',monospace;font-size:8pt;color:var(--gold-light);border:1px solid rgba(196,145,26,.4);padding:4px 12px;letter-spacing:2px;}
+
+/* ── SEPARATORS ── */
+.sep{height:4px;background:linear-gradient(90deg,var(--navy) 0%,var(--teal) 50%,var(--gold) 100%);}
+
+/* ── TOC ── */
+.toc-page{padding:64px 70px;background:var(--bg);}
+.toc-label{font-family:'DM Mono',monospace;font-size:8pt;color:var(--gold);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;}
+.toc-heading{font-family:'EB Garamond',serif;font-size:30pt;font-weight:600;color:var(--navy);margin-bottom:28px;padding-bottom:18px;border-bottom:2px solid var(--navy);}
+.toc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.toc-row{display:flex;gap:14px;padding:12px 16px 12px 0;border-bottom:1px solid var(--border-light);align-items:flex-start;}
+.toc-row:nth-child(even){padding-left:16px;border-left:1px solid var(--border-light);}
+.toc-n{font-family:'DM Mono',monospace;font-size:9pt;color:var(--gold);font-weight:500;min-width:22px;margin-top:2px;}
+.toc-rt{font-size:10pt;font-weight:600;color:var(--navy);line-height:1.3;}
+.toc-rd{font-size:8.5pt;color:var(--muted);margin-top:2px;line-height:1.4;}
+
+/* ── RUNNING HEADER ── */
+.rh{display:flex;justify-content:space-between;align-items:center;padding:12px 70px;background:var(--navy);border-bottom:1px solid rgba(255,255,255,.06);}
+.rh-l{font-family:'DM Mono',monospace;font-size:7.5pt;color:rgba(255,255,255,.4);letter-spacing:.8px;}
+.rh-c{font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--gold-light);letter-spacing:.8px;text-transform:uppercase;}
+.rh-r{font-size:8pt;color:rgba(255,255,255,.4);}
+
+/* ── CONTENT PAGES ── */
+.cp{padding:52px 70px;}
+
+/* ── SECTION HEADERS ── */
+.sec-intro{display:flex;align-items:flex-start;gap:20px;margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--border);}
+.sec-num{background:var(--navy);color:white;font-family:'DM Mono',monospace;font-size:8.5pt;padding:5px 12px;margin-top:6px;flex-shrink:0;letter-spacing:1px;}
+.sec-head{font-family:'EB Garamond',serif;font-size:30pt;font-weight:600;color:var(--navy);line-height:1.05;margin-bottom:6px;}
+.sec-lead{font-size:11pt;color:var(--slate);line-height:1.7;font-weight:300;}
+
+/* ── TYPOGRAPHY ── */
+h2.s{font-family:'EB Garamond',serif;font-size:17pt;font-weight:600;color:var(--navy);margin:28px 0 10px;padding-bottom:5px;border-bottom:2px solid var(--gold);display:inline-block;}
+h3.s{font-family:'DM Sans',sans-serif;font-size:10pt;font-weight:700;color:var(--navy-mid);margin:18px 0 7px;text-transform:uppercase;letter-spacing:.8px;}
+p.b{font-size:10pt;line-height:1.75;color:var(--text);margin-bottom:12px;}
+
+/* ── CALLOUTS ── */
+.cq{background:var(--gold-pale);border-left:4px solid var(--gold);padding:15px 20px;margin:18px 0;font-family:'EB Garamond',serif;font-size:11pt;font-style:italic;color:var(--navy);line-height:1.65;}
+.ca{background:var(--red-light);border-left:4px solid var(--red);padding:14px 18px;margin:16px 0;}
+.ca .ca-t{font-weight:700;color:var(--red);font-size:9pt;text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;font-family:'DM Sans',sans-serif;}
+.ca p{font-size:9.5pt;line-height:1.65;}
+.ct{background:var(--teal-light);border-left:4px solid var(--teal);padding:14px 18px;margin:16px 0;font-size:9.5pt;line-height:1.65;}
+.cg{background:var(--green-light);border-left:4px solid var(--green);padding:14px 18px;margin:16px 0;font-size:9.5pt;line-height:1.65;}
+.cp-box{background:var(--purple-light);border-left:4px solid var(--purple);padding:14px 18px;margin:16px 0;font-size:9.5pt;line-height:1.65;}
+
+/* ── STATS ── */
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0;}
+.stat-row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0;}
+.stat{padding:18px 14px;text-align:center;}
+.stat.n{background:var(--navy);}
+.stat.g{background:var(--gold);}
+.stat.t{background:var(--teal);}
+.stat.sl{background:var(--slate);}
+.stat.gr{background:var(--green);}
+.stat-n{font-family:'EB Garamond',serif;font-size:28pt;font-weight:600;color:white;line-height:1;margin-bottom:5px;}
+.stat-l{font-size:8pt;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Sans',sans-serif;}
+
+/* ── TABLES ── */
+.dt{width:100%;border-collapse:collapse;margin:18px 0;font-size:9.5pt;}
+.dt thead tr{background:var(--navy);color:white;}
+.dt thead th{padding:9px 13px;text-align:left;font-family:'DM Sans',sans-serif;font-weight:600;font-size:8pt;letter-spacing:.4px;text-transform:uppercase;}
+.dt thead th.r{text-align:right;}
+.dt thead th.c{text-align:center;}
+.dt tbody tr{border-bottom:1px solid var(--border-light);}
+.dt tbody tr:nth-child(even){background:#F9F8F6;}
+.dt tbody td{padding:8px 13px;vertical-align:top;line-height:1.5;}
+.dt tbody td.b{font-weight:600;color:var(--navy);}
+.dt tbody td.r{text-align:right;}
+.dt tbody td.c{text-align:center;}
+.dt tbody td.m{color:var(--muted);font-size:9pt;}
+.dt tfoot tr{background:var(--navy);}
+.dt tfoot td{padding:9px 13px;font-weight:600;color:white;font-size:9.5pt;}
+
+/* ── PILLS ── */
+.p-hi{display:inline-block;padding:2px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;background:var(--green-light);color:var(--green);border:1px solid #A8D5BC;border-radius:2px;}
+.p-med{display:inline-block;padding:2px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;background:var(--gold-pale);color:var(--gold);border:1px solid #E8C97A;border-radius:2px;}
+.p-lo{display:inline-block;padding:2px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;background:var(--red-light);color:var(--red);border:1px solid #E8A89A;border-radius:2px;}
+.p-crit{display:inline-block;padding:2px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;background:var(--red);color:white;border-radius:2px;}
+.p-nav{display:inline-block;padding:2px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;background:var(--navy);color:white;border-radius:2px;}
+.p-teal{display:inline-block;padding:2px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;background:var(--teal);color:white;border-radius:2px;}
+.p-grn{display:inline-block;padding:2px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;background:var(--green);color:white;border-radius:2px;}
+
+/* ── COLUMNS ── */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin:18px 0;}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;margin:18px 0;}
+.four{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:14px;margin:18px 0;}
+.col-6-4{display:grid;grid-template-columns:3fr 2fr;gap:26px;margin:18px 0;}
+
+/* ── INFO CARDS ── */
+.ic{border:1px solid var(--border);padding:18px;background:white;}
+.ic .ic-l{font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px;}
+.ic .ic-v{font-family:'EB Garamond',serif;font-size:20pt;font-weight:600;color:var(--navy);line-height:1.1;margin-bottom:4px;}
+.ic .ic-s{font-size:8.5pt;color:var(--muted);line-height:1.5;}
+
+/* ── ORG CHART ── */
+.org{display:flex;flex-direction:column;align-items:center;margin:22px 0;}
+.on{padding:13px 24px;text-align:center;}
+.on.t1{background:var(--navy);color:white;width:500px;}
+.on.t2{background:var(--teal);color:white;width:440px;}
+.on.t3{background:var(--navy-light);color:white;flex:1;max-width:145px;padding:10px 12px;font-size:8pt;}
+.on.t3b{background:var(--green);color:white;flex:1;max-width:240px;padding:10px 14px;font-size:8.5pt;}
+.on-t{font-family:'DM Sans',sans-serif;font-weight:600;font-size:9.5pt;margin-bottom:2px;}
+.on-s{font-size:8pt;opacity:.7;line-height:1.35;}
+.oc{width:2px;height:24px;background:var(--gold);margin:0 auto;}
+.or{display:flex;gap:10px;justify-content:center;width:100%;}
+.orf{display:flex;gap:16px;justify-content:center;width:100%;}
+
+/* ── CAPITAL STACK ── */
+.cstack{display:flex;flex-direction:column;gap:0;margin:16px 0;width:100%;}
+.cl{padding:13px 18px;display:flex;justify-content:space-between;align-items:center;}
+.cl-label{font-family:'DM Sans',sans-serif;font-weight:600;font-size:9.5pt;color:white;}
+.cl-sub{font-size:8pt;color:rgba(255,255,255,.7);margin-top:2px;}
+.cl-amt{font-family:'EB Garamond',serif;font-size:18pt;font-weight:600;color:white;text-align:right;}
+.cl-pct{font-size:8pt;color:rgba(255,255,255,.65);text-align:right;}
+
+/* ── PILLAR CARDS ── */
+.pg{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:18px 0;}
+.pc{border:1px solid var(--border);padding:14px 11px;background:white;position:relative;overflow:hidden;}
+.pc::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.pc.p1::before{background:var(--navy);}
+.pc.p2::before{background:var(--teal);}
+.pc.p3::before{background:var(--gold);}
+.pc.p4::before{background:var(--green);}
+.pc.p5::before{background:var(--purple);}
+.pc-n{font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--muted);margin-bottom:4px;}
+.pc-t{font-family:'EB Garamond',serif;font-size:11.5pt;font-weight:600;color:var(--navy);line-height:1.2;margin-bottom:7px;}
+.pc-m{font-family:'DM Mono',monospace;font-size:8.5pt;color:var(--gold);margin-bottom:3px;}
+.pc-tl{font-size:8pt;color:var(--muted);}
+
+/* ── GANTT ── */
+.gantt-t{width:100%;border-collapse:collapse;font-size:8.5pt;}
+.gantt-t thead th{background:var(--navy);color:white;padding:7px 8px;font-size:7.5pt;font-family:'DM Mono',monospace;letter-spacing:.4px;text-align:center;border-right:1px solid rgba(255,255,255,.08);}
+.gantt-t thead th.lc{text-align:left;min-width:200px;}
+.gantt-t tbody tr{border-bottom:1px solid var(--border-light);}
+.gantt-t tbody tr:nth-child(even){background:#FAFAF8;}
+.gantt-t tbody td{padding:7px 8px;vertical-align:middle;}
+.gantt-t tbody td.tl{font-weight:500;color:var(--navy);min-width:200px;font-size:8.5pt;}
+.gc{text-align:center;padding:4px 5px !important;border-right:1px solid var(--border-light);}
+.gb{height:15px;border-radius:2px;display:block;}
+.gb1{background:var(--navy);}
+.gb2{background:var(--teal);}
+.gb3{background:var(--green);}
+.gbo{background:var(--gold);}
+
+/* ── BAR CHART ── */
+.chart{background:white;border:1px solid var(--border);padding:22px;margin:18px 0;}
+.ch-t{font-family:'DM Sans',sans-serif;font-weight:600;font-size:9pt;color:var(--navy);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.ch-s{font-size:8pt;color:var(--muted);margin-bottom:18px;}
+.bars{display:flex;align-items:flex-end;gap:7px;height:150px;border-bottom:2px solid var(--border);border-left:2px solid var(--border);padding:0 8px;}
+.bg{display:flex;flex-direction:column;align-items:center;flex:1;}
+.bv{font-family:'DM Mono',monospace;font-size:7pt;color:var(--muted);margin-bottom:2px;}
+.bar{width:100%;min-height:4px;}
+.bl{font-family:'DM Mono',monospace;font-size:7pt;color:var(--muted);margin-top:5px;text-align:center;white-space:nowrap;}
+.legend{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap;}
+.li{display:flex;align-items:center;gap:5px;font-size:8pt;color:var(--muted);}
+.ld{width:9px;height:9px;flex-shrink:0;}
+
+/* ── RISK ── */
+.risk-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0;}
+.risk-card{border:1px solid var(--border);padding:15px;background:white;}
+.rk-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.rk-t{font-weight:600;font-size:9.5pt;color:var(--navy);}
+.rk-b{font-size:8.5pt;color:var(--muted);line-height:1.6;margin-bottom:7px;}
+.rk-m{font-size:8.5pt;line-height:1.6;border-top:1px solid var(--border-light);padding-top:7px;}
+.rk-ml{font-family:'DM Mono',monospace;font-size:7pt;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+
+/* ── PROJECTION TABLE ── */
+.pt{width:100%;border-collapse:collapse;margin:18px 0;}
+.pt th{background:var(--navy);color:white;padding:9px 12px;font-size:8pt;font-family:'DM Mono',monospace;letter-spacing:.4px;text-align:center;border-right:1px solid rgba(255,255,255,.08);}
+.pt th.l{text-align:left;}
+.pt td{padding:8px 12px;text-align:center;border-bottom:1px solid var(--border-light);font-size:9pt;}
+.pt td.l{text-align:left;font-weight:600;color:var(--navy);}
+.pt tr:nth-child(even) td{background:#F9F8F6;}
+.pt tr.hl td{background:var(--gold-pale);}
+.pt tr.hl td.l{color:var(--gold);}
+
+/* ── CC BRIEFING ── */
+.ccb{background:var(--navy);padding:48px 60px;position:relative;overflow:hidden;}
+.ccb-bg{position:absolute;top:0;right:0;width:45%;height:100%;background:linear-gradient(135deg,var(--navy-mid),var(--navy));opacity:.5;}
+.ccb-c{position:relative;z-index:2;}
+.ccb-tag{font-family:'DM Mono',monospace;font-size:8pt;color:var(--gold-light);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.ccb-tag::before{content:'';display:block;width:28px;height:2px;background:var(--gold);}
+.ccb-title{font-family:'EB Garamond',serif;font-size:30pt;font-weight:600;color:white;margin-bottom:18px;line-height:1.05;}
+.ccb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:24px 0;}
+.ccb-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.11);padding:18px 16px;}
+.ccb-ct{font-family:'DM Sans',sans-serif;font-size:8.5pt;font-weight:700;color:var(--gold-light);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+.ccb-cb{font-size:9pt;color:rgba(255,255,255,.72);line-height:1.65;}
+.ccb-dec{background:rgba(196,145,26,.1);border:1px solid rgba(196,145,26,.28);padding:22px;margin-top:18px;}
+.ccb-dt{font-family:'DM Mono',monospace;font-size:8pt;color:var(--gold-light);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;}
+.ccb-di{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07);}
+.ccb-di:last-child{border-bottom:none;}
+.ccb-dn{font-family:'DM Mono',monospace;font-size:18pt;color:var(--gold);line-height:1;min-width:32px;}
+.ccb-dtt{font-weight:600;color:white;font-size:9.5pt;margin-bottom:2px;}
+.ccb-db{font-size:8.5pt;color:rgba(255,255,255,.6);line-height:1.6;}
+
+/* ── UL ── */
+ul.rl{list-style:none;padding:0;margin:7px 0 14px;}
+ul.rl li{font-size:9.5pt;color:var(--text);line-height:1.7;padding:2px 0 2px 16px;position:relative;}
+ul.rl li::before{content:'—';position:absolute;left:0;color:var(--gold);font-weight:700;}
+
+/* ── METHODOLOGY BOX ── */
+.mbox{background:#F4F3F0;border:1px solid var(--border);padding:16px 20px;margin:18px 0;font-size:9pt;line-height:1.7;color:var(--slate);}
+.mbox-t{font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--navy);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-weight:500;}
+
+/* ── FOOTNOTE ── */
+.fn{font-size:8pt;color:var(--muted);border-top:1px solid var(--border-light);padding-top:10px;margin-top:24px;line-height:1.7;}
+
+/* ── SCENARIO CARDS ── */
+.sc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:18px 0;}
+.sc-card{border:2px solid var(--border);padding:20px 16px;background:white;position:relative;}
+.sc-card.selected{border-color:var(--gold);background:var(--gold-pale);}
+.sc-card.selected::after{content:'SELECTED';position:absolute;top:12px;right:12px;font-family:'DM Mono',monospace;font-size:7pt;background:var(--gold);color:white;padding:2px 7px;letter-spacing:1px;}
+.sc-num{font-family:'DM Mono',monospace;font-size:8pt;color:var(--muted);margin-bottom:5px;}
+.sc-title{font-family:'EB Garamond',serif;font-size:15pt;font-weight:600;color:var(--navy);margin-bottom:8px;line-height:1.2;}
+.sc-desc{font-size:9pt;line-height:1.65;color:var(--text);margin-bottom:10px;}
+.sc-pros{font-size:8.5pt;color:var(--green);margin-bottom:4px;}
+.sc-cons{font-size:8.5pt;color:var(--red);}
+
+/* ── JP ORG SPECIAL ── */
+.jp-box{background:var(--purple-light);border:1px solid rgba(91,45,142,.25);padding:20px;margin:18px 0;}
+.jp-t{font-family:'DM Mono',monospace;font-size:7.5pt;color:var(--purple);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+
+/* ── BENCHMARK TABLE ── */
+.bench-item{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--border-light);}
+.bench-item:last-child{border-bottom:none;}
+.bench-nation{font-weight:600;font-size:9.5pt;color:var(--navy);min-width:180px;}
+.bench-model{font-size:9pt;color:var(--muted);min-width:200px;}
+.bench-lesson{font-size:9pt;color:var(--text);line-height:1.5;}
+
+/* ── SWF ALLOCATION ── */
+.swf-alloc{display:flex;gap:0;height:28px;margin:12px 0;border-radius:2px;overflow:hidden;}
+.swf-seg{display:flex;align-items:center;justify-content:center;font-size:8pt;font-weight:600;color:white;font-family:'DM Mono',monospace;}
+
+/* ── ENTERPRISE PIPELINE ── */
+.ep-table{width:100%;border-collapse:collapse;margin:18px 0;}
+.ep-table thead th{background:var(--navy);color:white;padding:9px 13px;font-size:8pt;font-family:'DM Mono',monospace;letter-spacing:.4px;text-align:left;}
+.ep-table thead th.r{text-align:right;}
+.ep-table tbody tr{border-bottom:1px solid var(--border-light);}
+.ep-table tbody tr:nth-child(even){background:#F9F8F6;}
+.ep-table tbody td{padding:9px 13px;font-size:9.5pt;}
+.ep-table tbody td.b{font-weight:600;color:var(--navy);}
+.ep-table tbody td.r{text-align:right;}
+.ep-table tfoot tr{background:var(--navy);}
+.ep-table tfoot td{padding:9px 13px;font-weight:600;color:white;}
+
+/* ── BACK COVER ── */
+.back{background:var(--navy);padding:44px 60px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:18px;}
+.back-nation{font-family:'EB Garamond',serif;font-size:20pt;font-weight:600;color:white;margin-bottom:7px;}
+.back-mono{font-family:'DM Mono',monospace;font-size:7.5pt;color:rgba(255,255,255,.35);letter-spacing:1.5px;line-height:1.9;}
+.back-disc{font-family:'DM Mono',monospace;font-size:7.5pt;color:rgba(255,255,255,.25);max-width:300px;line-height:1.7;text-align:right;}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<div class="cover">
+  <svg class="cover-geo" viewBox="0 0 420 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polygon points="210,0 420,420 0,420" fill="white"/>
+    <polygon points="210,40 400,400 20,400" fill="none" stroke="white" stroke-width="1"/>
+    <circle cx="210" cy="210" r="180" fill="none" stroke="white" stroke-width=".8"/>
+    <circle cx="210" cy="210" r="120" fill="none" stroke="white" stroke-width=".5"/>
+    <circle cx="210" cy="210" r="60" fill="none" stroke="white" stroke-width=".5"/>
+  </svg>
+  <svg class="cover-geo2" viewBox="0 0 200 200" fill="none">
+    <rect x="10" y="10" width="180" height="180" stroke="white" stroke-width=".8"/>
+    <rect x="40" y="40" width="120" height="120" stroke="white" stroke-width=".5"/>
+    <line x1="10" y1="10" x2="190" y2="190" stroke="white" stroke-width=".5"/>
+    <line x1="190" y1="10" x2="10" y2="190" stroke="white" stroke-width=".5"/>
+  </svg>
+  <div class="cover-stripe"></div>
+  <div class="cover-main">
+    <div class="cv-eyebrow">Nation Wealth Strategy — Institutional Edition</div>
+    <div class="cv-nation">Dakota Plains<br>Wahpeton Nation</div>
+    <div class="cv-doc-type">10–20 Year Wealth &amp; Economic Sovereignty Blueprint</div>
+    <div class="cv-rule"></div>
+    <div class="cv-title">Integrated Master Strategy — Investor &amp; Funder Grade</div>
+    <div class="cv-desc">A comprehensive, bankable nation-building strategy combining institutional governance architecture, federal funding stacks, phased capital deployment, and a sovereign wealth framework for multi-generational economic sovereignty.</div>
+    <div class="cv-badges">
+      <div class="cv-badge">ISC</div><div class="cv-badge">PrairiesCan</div><div class="cv-badge">NRCan</div>
+      <div class="cv-badge">CIB</div><div class="cv-badge">CMHC</div><div class="cv-badge">FNFA</div>
+      <div class="cv-badge">ESDC</div><div class="cv-badge">BDC · NACCA</div><div class="cv-badge">AAFC</div>
+    </div>
+  </div>
+  <div class="cover-foot">
+    <div class="cf-left">March 2026 · Portage la Prairie Area, Manitoba, Canada<br>Prepared for Chief &amp; Council and Economic Development Board<br>Audience: Federal Agencies · Institutional Lenders · Economic Development Partners</div>
+    <div class="cf-conf">Confidential</div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ TOC ═══════════════ -->
+<div class="toc-page">
+  <div class="toc-label">Contents</div>
+  <div class="toc-heading">Nation Wealth Strategy — Overview</div>
+  <div class="toc-grid">
+    <div class="toc-row"><div class="toc-n">01</div><div><div class="toc-rt">Executive Summary</div><div class="toc-rd">Strategic position, key findings, and the 20-year wealth vision</div></div></div>
+    <div class="toc-row"><div class="toc-n">02</div><div><div class="toc-rt">Community Profile &amp; Strategic Context</div><div class="toc-rd">Demographics, geography, assets, and competitive advantages</div></div></div>
+    <div class="toc-row"><div class="toc-n">03</div><div><div class="toc-rt">Financial Position &amp; Methodology</div><div class="toc-rd">Revenue structure, ratios, debt capacity, and investment readiness</div></div></div>
+    <div class="toc-row"><div class="toc-n">04</div><div><div class="toc-rt">Strategic Scenario Analysis</div><div class="toc-rd">Three development pathways evaluated; Scenario 3 selected</div></div></div>
+    <div class="toc-row"><div class="toc-n">05</div><div><div class="toc-rt">Strategic Diagnosis</div><div class="toc-rd">Development stage, benchmarks, and realistic capacity</div></div></div>
+    <div class="toc-row"><div class="toc-n">06</div><div><div class="toc-rt">Institutional Governance Structure</div><div class="toc-rd">Three-tier HoldCo architecture, board design, and JP model</div></div></div>
+    <div class="toc-row"><div class="toc-n">07</div><div><div class="toc-rt">Economic Opportunity Portfolio</div><div class="toc-rd">Five-pillar strategy with enterprise pipeline and market maps</div></div></div>
+    <div class="toc-row"><div class="toc-n">08</div><div><div class="toc-rt">Federal Funding Stack Strategy</div><div class="toc-rd">15+ programs, stacking matrices, zero-Nation-cash model</div></div></div>
+    <div class="toc-row"><div class="toc-n">09</div><div><div class="toc-rt">Capital Strategy &amp; Deployment Policy</div><div class="toc-rd">Grant-first model, DSCR rules, FNFA pathway, leverage targets</div></div></div>
+    <div class="toc-row"><div class="toc-n">10</div><div><div class="toc-rt">Procurement Strategy</div><div class="toc-rd">Federal 5% mandate, $1.5B market, DPWN target positioning</div></div></div>
+    <div class="toc-row"><div class="toc-n">11</div><div><div class="toc-rt">Implementation Roadmap</div><div class="toc-rd">Phased Gantt, milestones, Nation Transformation Office</div></div></div>
+    <div class="toc-row"><div class="toc-n">12</div><div><div class="toc-rt">Sovereign Wealth Framework</div><div class="toc-rd">Fund structure, allocation policy, intergenerational mandate</div></div></div>
+    <div class="toc-row"><div class="toc-n">13</div><div><div class="toc-rt">Risk Management Framework</div><div class="toc-rd">Six-category risk matrix with mitigations</div></div></div>
+    <div class="toc-row"><div class="toc-n">14</div><div><div class="toc-rt">10-Year Economic Impact Projection</div><div class="toc-rd">OSR growth, employment, leverage, and wealth targets</div></div></div>
+    <div class="toc-row"><div class="toc-n">15</div><div><div class="toc-rt">Advisory &amp; Implementation Capacity</div><div class="toc-rd">Expertise requirements, internal hires, capacity building</div></div></div>
+    <div class="toc-row"><div class="toc-n">CC</div><div><div class="toc-rt">Chief &amp; Council Decision Brief</div><div class="toc-rd">Five decisions required within 90 days</div></div></div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S01 EXECUTIVE SUMMARY ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">01 — Executive Summary</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">01</div>
+    <div>
+      <div class="sec-head">Executive Summary</div>
+      <div class="sec-lead">Dakota Plains Wahpeton Nation stands at a generational inflection point. The foundations of economic sovereignty exist. The pathway forward is clear. The decision to begin is what remains.</div>
+    </div>
+  </div>
+
+  <p class="b">Over the past three years the Nation has achieved foundational milestones: strong liquidity growth from $1.6M to $8.7M in cash, active infrastructure investment, major federal program delivery through Jordan's Principle, a completed community strategic plan, and the formation of early corporate structures. These developments position DPWN to move decisively from government-program administration toward a diversified, Nation-owned economic portfolio.</p>
+
+  <p class="b">Three structural constraints must be resolved before capital deployment can begin. These are not obstacles to the strategy — they are the first deliverables of it.</p>
+
+  <div class="ca">
+    <div class="ca-t">⚠ Three Pre-Conditions — Must Be Addressed Before Capital Deployment</div>
+    <p><strong>1. Financial Governance Remediation:</strong> The FY2023 audit resulted in the highest level of audit uncertainty (Disclaimer of Opinion) — often arising from documentation gaps, third-party program expense verification issues, or federal program timing rather than mismanagement. Until resolved, FNFA borrowing and institutional lending remain inaccessible.<br>
+    <strong>2. Bridging Finance Contingent Liability:</strong> The $10.2M contingent liability must be legally assessed and ring-fenced or resolved. Final impact on borrowing capacity depends on lender interpretation and whether obligations are consolidated within Nation financial statements.<br>
+    <strong>3. Enterprise Governance Structures:</strong> The EDC requires restructuring from a shell entity into a functioning HoldCo with independent board governance before enterprises can be launched credibly.</p>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat n"><div class="stat-n">$8.7M</div><div class="stat-l">Cash Position</div></div>
+    <div class="stat g"><div class="stat-n">$11.5M</div><div class="stat-l">Accumulated Surplus</div></div>
+    <div class="stat t"><div class="stat-n">$15M</div><div class="stat-l">Capital Asset Base</div></div>
+    <div class="stat sl"><div class="stat-n">~2%</div><div class="stat-l">Own-Source Revenue Today</div></div>
+  </div>
+
+  <h2 class="s">Strategic Vision: The Prairie Infrastructure &amp; Services Model</h2>
+  <p class="b">This strategy selects the <strong>Institutional Portfolio Model</strong> — building a diversified, professionally governed enterprise portfolio producing multi-stream own-source revenue, compounding over decades into a sovereign wealth fund and regional economic influence. The path mirrors the development arc of Whitecap Dakota, Muskeg Lake, and Membertou — adapted to DPWN's unique prairie geography and asset base.</p>
+
+  <div class="pg">
+    <div class="pc p1"><div class="pc-n">PILLAR 01</div><div class="pc-t">Government Procurement &amp; Services</div><div class="pc-m">$5–10M / 10yr</div><div class="pc-tl">Launch: Year 1</div></div>
+    <div class="pc p2"><div class="pc-n">PILLAR 02</div><div class="pc-t">Construction &amp; Infrastructure</div><div class="pc-m">$2.5M+/yr by Yr 10</div><div class="pc-tl">Launch: Year 2</div></div>
+    <div class="pc p3"><div class="pc-n">PILLAR 03</div><div class="pc-t">Health Services Administration</div><div class="pc-m">$250–700K/yr</div><div class="pc-tl">Launch: Year 1</div></div>
+    <div class="pc p4"><div class="pc-n">PILLAR 04</div><div class="pc-t">Agriculture &amp; Land-Based Enterprise</div><div class="pc-m">$500K–1.5M/yr</div><div class="pc-tl">Launch: Year 2–3</div></div>
+    <div class="pc p5"><div class="pc-n">PILLAR 05</div><div class="pc-t">Strategic Infrastructure Equity</div><div class="pc-m">Long-term dividends</div><div class="pc-tl">Launch: Year 5+</div></div>
+  </div>
+
+  <div class="cq">Core strategic principle: Use $1 of Nation capital to unlock $8–$12 of total project investment through grant stacking, loan guarantees, low-interest financing, and equity partnerships — preserving Nation cash while building owned assets.</div>
+
+  <div class="two">
+    <div>
+      <h3 class="s">Year 10 Targets</h3>
+      <ul class="rl">
+        <li>$4.6M+ annual own-source revenue (2% → 27% of total)</li>
+        <li>75–100 direct Nation employment positions</li>
+        <li>$25M+ total capital leveraged from funding stacks</li>
+        <li>Real estate, agriculture, and infrastructure income active</li>
+        <li>Sovereign wealth fund seeded with first $2–5M</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="s">Year 20–30 Vision</h3>
+      <ul class="rl">
+        <li>$15–25M+ annual enterprise revenues across all pillars</li>
+        <li>$5–10M passive income from real estate and equity stakes</li>
+        <li>Sovereign wealth fund: $20–40M</li>
+        <li>Own-source revenue exceeds 50% of total revenues</li>
+        <li>DPWN as a regional economic anchor — 150+ employment positions</li>
+      </ul>
+    </div>
+  </div>
+  <div class="fn">All projections are directional targets based on comparable First Nations development trajectories and conservative benchmarking. Revenue estimates use audited statements, program schedules, and Manitoba/Saskatchewan First Nations economic benchmarks. Projections should be reviewed annually against actual performance.</div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S02 COMMUNITY PROFILE ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">02 — Community Profile</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">02</div>
+    <div>
+      <div class="sec-head">Community Profile &amp; Strategic Context</div>
+      <div class="sec-lead">DPWN's geographic positioning along Canada's most productive agricultural and logistics corridor creates a genuine, defensible competitive advantage.</div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div>
+      <h2 class="s">Nation Overview</h2>
+      <p class="b">Dakota Plains Wahpeton Nation is located in southern Manitoba near Portage la Prairie — within one of the most productive agricultural and logistics corridors in Western Canada. The Nation holds reserve lands positioned at the intersection of the Trans-Canada Highway corridor, Manitoba's agricultural heartland, and significant regional infrastructure investment activity.</p>
+      <div class="three" style="margin-top:14px;">
+        <div class="ic"><div class="ic-l">Registered Members</div><div class="ic-v">~400</div><div class="ic-s">On-reserve population to be confirmed in community census</div></div>
+        <div class="ic"><div class="ic-l">Location</div><div class="ic-v" style="font-size:13pt">Portage la Prairie Area</div><div class="ic-s">Southern Manitoba, Hwy 1 corridor</div></div>
+        <div class="ic"><div class="ic-l">Winnipeg Distance</div><div class="ic-v">~85km</div><div class="ic-s">Direct access to Manitoba's primary economic centre</div></div>
+      </div>
+    </div>
+    <div>
+      <h2 class="s">Geographic Competitive Advantages</h2>
+      <ul class="rl">
+        <li><strong>Trans-Canada Highway corridor</strong> — direct access to national logistics routes and industrial supply chains</li>
+        <li><strong>Winnipeg proximity</strong> — Manitoba's major economic centre within 85km; federal procurement offices accessible</li>
+        <li><strong>Agricultural heartland</strong> — highest-value grain and food processing zone in Western Canada; land leasing opportunity</li>
+        <li><strong>Portage la Prairie industrial base</strong> — established manufacturing and logistics sector; procurement target</li>
+        <li><strong>Regional infrastructure investment pipeline</strong> — federal and provincial infrastructure programs active on Hwy 1 corridor</li>
+        <li><strong>Energy corridor positioning</strong> — transmission grid and renewable development opportunity nearby</li>
+      </ul>
+      <div class="cg">DPWN's location mirrors the strategic positioning that enabled Whitecap Dakota (SK) and Muskeg Lake (SK) to develop major commercial enterprises. Highway frontage and urban proximity are the two most consistent factors in First Nations commercial real estate success in the prairies.</div>
+    </div>
+  </div>
+
+  <h2 class="s">Current Economic Asset Inventory</h2>
+  <table class="dt">
+    <thead><tr><th>Category</th><th>Asset</th><th>Estimated Value / Status</th><th>Economic Development Potential</th></tr></thead>
+    <tbody>
+      <tr><td class="b">Financial</td><td>Cash and liquid investments</td><td>$8.7M</td><td>Phase 1 enterprise launches — no external capital needed</td></tr>
+      <tr><td class="b">Financial</td><td>Accumulated surplus</td><td>$11.5M</td><td>Equity contribution base; preserve for Phase 3 infrastructure</td></tr>
+      <tr><td class="b">Infrastructure</td><td>Capital asset base</td><td>$15M</td><td>Internal capacity; anchors construction pillar launch</td></tr>
+      <tr><td class="b">Infrastructure</td><td>Heavy equipment fleet</td><td>Active (value TBD)</td><td>Eliminates largest cost category in construction company launch</td></tr>
+      <tr><td class="b">Programs</td><td>Jordan's Principle pipeline</td><td>$11M+ approved</td><td>Administration revenue: $250–700K/yr through formalized entity</td></tr>
+      <tr><td class="b">Land</td><td>Reserve agricultural lands</td><td>Reserve title</td><td>Immediate leasing income; greenhouse; food processing (Year 3+)</td></tr>
+      <tr><td class="b">Corporate</td><td>Dakota Plains Wahpeton Oyate EDC</td><td>Shell — restructure needed</td><td>HoldCo anchor once restructured; existing legal entity = time saved</td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="s">Demographic Opportunity</h2>
+  <div class="two">
+    <div>
+      <p class="b">DPWN's population structure — relatively young, with growing demand for housing, employment, and services — creates a dual economic opportunity: the community's needs generate the market for Nation-owned enterprises, while its youth represent the future workforce for those enterprises.</p>
+      <p class="b">Aligning enterprise development with ESDC skills training programs, Manitoba apprenticeship pathways, and partnerships with provincial technical institutions creates a self-reinforcing workforce-to-enterprise pipeline that deepens community economic roots over time.</p>
+    </div>
+    <div class="ic" style="background:var(--gold-pale);border-color:var(--gold);">
+      <div class="ic-l">Strategic Insight</div>
+      <p style="font-family:'EB Garamond',serif;font-style:italic;font-size:12pt;color:var(--navy);line-height:1.65;margin-top:6px;">"The young population that represents economic pressure today — through housing demand, employment need, service requirements — becomes the workforce and leadership capacity that powers economic success tomorrow. Enterprise development and community development are the same investment."</p>
+    </div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S03 FINANCIAL POSITION ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">03 — Financial Position</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">03</div>
+    <div>
+      <div class="sec-head">Financial Position &amp; Methodology</div>
+      <div class="sec-lead">A position of genuine financial strength constrained by specific, addressable governance issues — not structural insolvency.</div>
+    </div>
+  </div>
+
+  <div class="mbox">
+    <div class="mbox-t">Financial Methodology Note</div>
+    Revenue estimates and financial projections in this strategy are based on the Nation's audited financial statements, federal program schedules, and comparable First Nation economic development benchmarks from Manitoba and Saskatchewan communities at similar development stages. Where enterprise-specific data was unavailable, conservative benchmarking ranges from communities of comparable size and geographic positioning were applied. All estimates should be validated against a formal financial capacity assessment commissioned in Phase 1. Own-source revenue breakdown estimates are approximations; audited figures should be obtained for all investment-grade decisions.
+  </div>
+
+  <div class="ca">
+    <div class="ca-t">⚠ FY2023 Audit: Context and Remediation Path</div>
+    <p>A Disclaimer of Opinion represents the highest level of audit uncertainty — but it does not necessarily indicate financial mismanagement. Common causes include inability to verify third-party program expenses, documentation gaps, timing of large federal programs, or consolidation errors. The remediation path is well-defined and achievable within 12–18 months with qualified financial leadership in place. Until resolved, FNFA borrowing, institutional lending, and most federal capital programs above $500K remain inaccessible.</p>
+  </div>
+
+  <div class="two">
+    <div>
+      <h2 class="s">Revenue Structure</h2>
+      <table class="dt">
+        <thead><tr><th>Revenue Source</th><th class="r">Est. %</th><th class="r">Est. Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Federal transfers (ISC core)</td><td class="r">~72%</td><td class="r">~$13.2M</td></tr>
+          <tr><td>Jordan's Principle &amp; program delivery</td><td class="r">~16%</td><td class="r">~$2.9M</td></tr>
+          <tr><td>Own-source revenue (all types)</td><td class="r">~12%</td><td class="r">~$2.2M</td></tr>
+          <tr><td class="m">&nbsp;&nbsp;— Of which: commercial enterprise</td><td class="r m">~2%</td><td class="r m">~$365K</td></tr>
+        </tbody>
+        <tfoot><tr><td>Estimated Total Revenue</td><td class="r">100%</td><td class="r">~$18.3M</td></tr></tfoot>
+      </table>
+      <div class="fn">$365K OSR estimate based on available indicators; enterprise revenue breakdown to be confirmed against audited statements. JP revenue estimated from approved program pipeline; not all approved funding translates to annual revenue.</div>
+    </div>
+    <div>
+      <div class="chart">
+        <div class="ch-t">Revenue Mix — Today vs. Year 10 Target</div>
+        <div class="ch-s">Estimated current vs. strategic target composition</div>
+        <div class="bars">
+          <div class="bg"><div class="bv">72%</div><div class="bar" style="height:108px;background:var(--navy);"></div><div class="bl">Fed<br>Transfers</div></div>
+          <div class="bg"><div class="bv">16%</div><div class="bar" style="height:24px;background:#4A90B8;"></div><div class="bl">JP &amp;<br>Programs</div></div>
+          <div class="bg"><div class="bv">2%</div><div class="bar" style="height:3px;background:var(--gold);"></div><div class="bl">OSR<br>Today</div></div>
+          <div style="width:1px;background:var(--border-light);height:100%;margin:0 6px;"></div>
+          <div class="bg"><div class="bv">53%</div><div class="bar" style="height:80px;background:var(--navy);opacity:.4;"></div><div class="bl">Fed<br>Target</div></div>
+          <div class="bg"><div class="bv">20%</div><div class="bar" style="height:30px;background:#4A90B8;opacity:.4;"></div><div class="bl">JP<br>Target</div></div>
+          <div class="bg"><div class="bv" style="color:var(--gold);font-weight:700;">27%</div><div class="bar" style="height:41px;background:var(--gold);"></div><div class="bl" style="color:var(--gold);font-weight:700;">OSR<br>Yr 10</div></div>
+        </div>
+        <div class="legend">
+          <div class="li"><div class="ld" style="background:var(--navy);"></div>Current</div>
+          <div class="li"><div class="ld" style="background:var(--gold);"></div>OSR Today / Yr 10</div>
+          <div class="li"><div class="ld" style="background:rgba(74,144,184,.5);"></div>10-Year Target</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="s">Financial Metrics &amp; Investment Readiness Assessment</h2>
+  <table class="dt">
+    <thead><tr><th>Metric</th><th>Current Status</th><th>Assessment</th><th class="c">Readiness</th></tr></thead>
+    <tbody>
+      <tr><td class="b">Liquidity</td><td>$8.7M cash — strong for community size</td><td>Supports Phase 1 enterprise launches without external capital</td><td class="c"><span class="p-hi">Ready</span></td></tr>
+      <tr><td class="b">Accumulated Surplus</td><td>$11.5M</td><td>Preserve for Phase 3; do not deploy in early phases without return analysis</td><td class="c"><span class="p-hi">Ready</span></td></tr>
+      <tr><td class="b">Debt Exposure</td><td>~$870K (CMHC mortgages)</td><td>Very low leverage; substantial borrowing capacity when audit resolved</td><td class="c"><span class="p-hi">Ready</span></td></tr>
+      <tr><td class="b">FNFA Borrowing</td><td>Blocked — audit uncertainty</td><td>Estimated $5–10M capacity once 2–3 clean audits achieved</td><td class="c"><span class="p-crit">Blocked</span></td></tr>
+      <tr><td class="b">Transfer Dependency</td><td>~88% transfers</td><td>High but typical; primary motivation for this strategy</td><td class="c"><span class="p-med">Watch</span></td></tr>
+      <tr><td class="b">Bridging Finance Liability</td><td>$10.2M contingent</td><td>Legal assessment required; borrowing impact depends on consolidation treatment<sup>1</sup></td><td class="c"><span class="p-crit">Critical</span></td></tr>
+      <tr><td class="b">DSCR Capacity</td><td>Not yet established</td><td>Target 1.25x minimum before commercial debt; achievable Year 3–4</td><td class="c"><span class="p-med">Build</span></td></tr>
+    </tbody>
+  </table>
+  <div class="fn"><sup>1</sup> Final borrowing capacity will depend on lender interpretation of contingent liabilities and whether these obligations are consolidated within Nation financial statements. Legal and financial advisory review required before capital commitments above $500K.</div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S04 SCENARIO ANALYSIS ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">04 — Strategic Scenario Analysis</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">04</div>
+    <div>
+      <div class="sec-head">Strategic Scenario Analysis</div>
+      <div class="sec-lead">Three development pathways were evaluated against DPWN's financial position, community capacity, geographic advantages, and long-term wealth objectives. One was selected.</div>
+    </div>
+  </div>
+
+  <div class="sc-grid">
+    <div class="sc-card">
+      <div class="sc-num">SCENARIO 01</div>
+      <div class="sc-title">Organic Growth Model</div>
+      <div class="sc-desc">Gradual, internally-funded enterprise development. Begins with small service businesses using existing cash reserves. Growth is slow but low-risk, with minimal external capital required.</div>
+      <div class="sc-pros">✓ Low risk · No debt · Fully Nation-controlled</div>
+      <div class="sc-cons">✗ Slow OSR growth (5–8% in 10 years) · Misses major federal funding windows · Does not address transfer dependency meaningfully</div>
+    </div>
+    <div class="sc-card">
+      <div class="sc-num">SCENARIO 02</div>
+      <div class="sc-title">Infrastructure-First Model</div>
+      <div class="sc-desc">Prioritizes major capital projects — industrial park, housing development, energy equity — before enterprise revenue base is established. Relies on significant early debt and grant funding.</div>
+      <div class="sc-pros">✓ Large asset base quickly · High long-term returns</div>
+      <div class="sc-cons">✗ Requires FNFA access (currently blocked) · High debt risk before revenue base · Exceeds current governance capacity · Bridging liability unresolved</div>
+    </div>
+    <div class="sc-card selected">
+      <div class="sc-num">SCENARIO 03</div>
+      <div class="sc-title">Institutional Portfolio Model</div>
+      <div class="sc-desc">Phased development anchored by immediate cash-flow businesses, scaling to asset ownership, then long-term wealth compounding. Federal funding stacks minimize Nation capital. Governed by professional HoldCo board.</div>
+      <div class="sc-pros">✓ Realistic · Fundable · Matches capacity · Builds toward wealth · Grant-first model protects Nation cash</div>
+      <div class="sc-cons">✗ Requires patient capital · Results compound over time, not immediately</div>
+    </div>
+  </div>
+
+  <div class="cq">This strategy selects <strong>Scenario 3 — the Institutional Portfolio Model</strong>. It is the only pathway that is simultaneously executable given current constraints, attractive to federal funders, credible to institutional lenders, and capable of producing genuine, compounding Nation wealth over 10–20 years.</div>
+
+  <h2 class="s">Why Scenario 3 Wins on Every Criterion</h2>
+  <table class="dt">
+    <thead><tr><th>Evaluation Criterion</th><th class="c">Scenario 1</th><th class="c">Scenario 2</th><th class="c">Scenario 3</th></tr></thead>
+    <tbody>
+      <tr><td class="b">Executable with current governance constraints</td><td class="c"><span class="p-hi">Yes</span></td><td class="c"><span class="p-lo">No</span></td><td class="c"><span class="p-hi">Yes</span></td></tr>
+      <tr><td class="b">Credible to federal funders (ISC, PrairiesCan)</td><td class="c"><span class="p-med">Partial</span></td><td class="c"><span class="p-med">Partial</span></td><td class="c"><span class="p-hi">Strong</span></td></tr>
+      <tr><td class="b">Achieves 25%+ OSR within 10 years</td><td class="c"><span class="p-lo">Unlikely</span></td><td class="c"><span class="p-med">Possible</span></td><td class="c"><span class="p-hi">Yes</span></td></tr>
+      <tr><td class="b">Preserves Nation cash (grant-first capital)</td><td class="c"><span class="p-med">Partial</span></td><td class="c"><span class="p-lo">No</span></td><td class="c"><span class="p-hi">Yes</span></td></tr>
+      <tr><td class="b">Builds toward sovereign wealth fund</td><td class="c"><span class="p-lo">No</span></td><td class="c"><span class="p-med">Delayed</span></td><td class="c"><span class="p-hi">Yes — Year 8+</span></td></tr>
+      <tr><td class="b">Survives leadership transitions</td><td class="c"><span class="p-med">Partial</span></td><td class="c"><span class="p-lo">Fragile</span></td><td class="c"><span class="p-hi">Yes — governance-embedded</span></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S05 STRATEGIC DIAGNOSIS ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">05 — Strategic Diagnosis</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">05</div>
+    <div>
+      <div class="sec-head">Strategic Diagnosis</div>
+      <div class="sec-lead">Where DPWN sits today, where it needs to get to, and the proven paths other Nations have taken to get there.</div>
+    </div>
+  </div>
+
+  <div class="cq">DPWN is classified as a <strong>Transition-Phase Nation</strong> — having substantially completed Stage 2 (infrastructure and governance) and now entering Stage 3 (enterprise formation). This is the most consequential transition in economic development: from administering programs to owning businesses.</div>
+
+  <h2 class="s">Development Stage Positioning</h2>
+  <table class="dt">
+    <thead><tr><th>Stage</th><th>Description</th><th>Characteristics</th><th class="c">DPWN Status</th></tr></thead>
+    <tbody>
+      <tr><td class="b">Stage 1</td><td>Foundation</td><td>Basic governance, financial reporting, HR, administrative systems</td><td class="c"><span class="p-hi">Complete</span></td></tr>
+      <tr><td class="b">Stage 2</td><td>Infrastructure &amp; Capacity</td><td>Capital assets, federal program delivery, governance frameworks, liquidity building</td><td class="c"><span class="p-hi">Substantially Complete</span></td></tr>
+      <tr><td class="b">Stage 3</td><td>Enterprise Formation</td><td>First Nation-owned businesses, own-source revenue, economic governance</td><td class="c"><span class="p-med">Entering Now</span></td></tr>
+      <tr><td class="b">Stage 4</td><td>Economic Diversification</td><td>Multiple revenue streams, construction, real estate, agriculture active</td><td class="c"><span class="p-nav">Year 3–8</span></td></tr>
+      <tr><td class="b">Stage 5</td><td>Institutional Wealth</td><td>Sovereign wealth fund, equity stakes, capital markets, 25%+ OSR</td><td class="c"><span class="p-teal">Year 8–15</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="s">Comparable Nation Benchmarks — The Prairie Infrastructure &amp; Services Model</h2>
+  <div style="border:1px solid var(--border);padding:18px;background:white;margin:16px 0;">
+    <div class="bench-item">
+      <div class="bench-nation">Whitecap Dakota FN<br><span style="font-weight:300;font-size:8.5pt;color:var(--muted)">Saskatchewan</span></div>
+      <div class="bench-model">Real estate + recreation<br>Highway corridor</div>
+      <div class="bench-lesson"><strong>Lesson for DPWN:</strong> Started with a single golf course lease on highway land. Annual revenues now exceed $30M. Geographic positioning on Hwy 1 mirrors DPWN's strategic advantage. <em>Highway frontage is the entry point.</em></div>
+    </div>
+    <div class="bench-item">
+      <div class="bench-nation">Muskeg Lake Cree Nation<br><span style="font-weight:300;font-size:8.5pt;color:var(--muted)">Saskatchewan</span></div>
+      <div class="bench-model">Urban reserve + commercial leasing<br>Saskatoon proximity</div>
+      <div class="bench-lesson"><strong>Lesson for DPWN:</strong> Urban reserve designation near Saskatoon generates $15M+ in annual commercial lease income. Winnipeg proximity creates same potential. <em>Land + proximity = passive income.</em></div>
+    </div>
+    <div class="bench-item">
+      <div class="bench-nation">Osoyoos Indian Band<br><span style="font-weight:300;font-size:8.5pt;color:var(--muted)">British Columbia</span></div>
+      <div class="bench-model">Tourism + agriculture + land<br>Okanagan Valley</div>
+      <div class="bench-lesson"><strong>Lesson for DPWN:</strong> Agricultural land base transformed into wine tourism and orchard enterprise. Cultural and land alignment identical to DPWN's agriculture pillar opportunity. <em>Land-based enterprise can carry cultural values.</em></div>
+    </div>
+    <div class="bench-item">
+      <div class="bench-nation">Membertou First Nation<br><span style="font-weight:300;font-size:8.5pt;color:var(--muted)">Nova Scotia</span></div>
+      <div class="bench-model">Diversified services + enterprise<br>25-year arc</div>
+      <div class="bench-lesson"><strong>Lesson for DPWN:</strong> From near-bankruptcy in 1995 to $500M+ annual revenues over 25 years. ISO 9001 governance, professional management, disciplined phasing. <em>DPWN is beginning the same arc today.</em></div>
+    </div>
+    <div class="bench-item" style="border-bottom:none;">
+      <div class="bench-nation">Westbank First Nation<br><span style="font-weight:300;font-size:8.5pt;color:var(--muted)">British Columbia</span></div>
+      <div class="bench-model">Land leasing + self-government<br>Urban surroundings</div>
+      <div class="bench-lesson"><strong>Lesson for DPWN:</strong> Self-government and aggressive land leasing model near Kelowna generates significant passive income. Demonstrates that land, not just enterprise, is the wealth foundation. <em>Own the land, lease the revenue.</em></div>
+    </div>
+  </div>
+  <div class="ct"><strong>DPWN's Defined Path:</strong> The Prairie Infrastructure &amp; Services Model — combining highway-corridor commercial positioning (Whitecap), agricultural land enterprise (Osoyoos), and diversified services (Membertou) into a single integrated portfolio uniquely matched to DPWN's assets and location.</div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S06 GOVERNANCE STRUCTURE ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">06 — Institutional Governance Structure</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">06</div>
+    <div>
+      <div class="sec-head">Institutional Governance Structure</div>
+      <div class="sec-lead">The architecture that separates political authority from enterprise management — protecting enterprises from electoral volatility while maintaining community accountability.</div>
+    </div>
+  </div>
+
+  <div class="cq">The most important structural principle: enterprise boards make enterprise decisions. Chief and Council set policy direction and hold shareholder oversight — they do not direct commercial operations. This separation is the single most consistent feature of every successful First Nations economic development model.</div>
+
+  <h2 class="s">Three-Tier Governance Architecture</h2>
+  <div class="org">
+    <div class="on t1"><div class="on-t">TIER 1 — DPWN Chief &amp; Council (Nation Government)</div><div class="on-s">Sovereign authority · Strategic policy · Community priorities · Shareholder oversight · Annual strategic plan approval</div></div>
+    <div class="oc"></div>
+    <div class="on t2"><div class="on-t">TIER 2 — Dakota Plains Wahpeton Oyate EDC (Restructured HoldCo)</div><div class="on-s">Independent board (5–7 directors; min. 3 independent) · Holds equity in all subsidiaries · Capital allocation · Quarterly reporting to Council</div></div>
+    <div class="oc"></div>
+    <div class="or">
+      <div class="on t3"><div class="on-t">Procurement &amp; Services Co.</div><div class="on-s">Base Operators Ltd.</div></div>
+      <div class="on t3"><div class="on-t">DPWN Construction Ltd.</div><div class="on-s">New — Year 2</div></div>
+      <div class="on t3"><div class="on-t">Real Estate &amp; Land LP</div><div class="on-s">Development + leasing</div></div>
+      <div class="on t3"><div class="on-t">Agriculture &amp; Land Co.</div><div class="on-s">Leasing + greenhouse</div></div>
+      <div class="on t3"><div class="on-t">Energy Holdings Ltd.</div><div class="on-s">Infrastructure equity</div></div>
+    </div>
+    <div style="height:20px;display:flex;justify-content:flex-start;width:100%;padding-left:10px;margin-top:10px;">
+      <div style="font-family:'DM Mono',monospace;font-size:8pt;color:var(--muted);">Separate track ↓</div>
+    </div>
+    <div class="orf">
+      <div class="on t3b"><div class="on-t">Program Administration Corp. (Non-Profit)</div><div class="on-s">Jordan's Principle administration · See JP structure below</div></div>
+    </div>
+  </div>
+
+  <h2 class="s">Jordan's Principle — Legally Compliant Revenue Structure</h2>
+  <div class="jp-box">
+    <div class="jp-t">⚖ Legal Structure Note — Jordan's Principle Under EDC</div>
+    <p class="b">Jordan's Principle funding is approved for service delivery, not commercial enterprise. Direct transfer of JP funding to a for-profit EDC subsidiary is not permissible under ISC program terms. The following structure is the legally appropriate model for generating revenue from the Nation's Jordan's Principle capacity.</p>
+  </div>
+
+  <div class="two">
+    <div>
+      <h3 class="s">Recommended JP Structure</h3>
+      <p class="b">Create a separate <strong>Program Administration Corporation (non-profit)</strong> that formally administers Jordan's Principle funding on behalf of the Nation. This entity:</p>
+      <ul class="rl">
+        <li>Hires staff to administer Jordan's Principle cases and service delivery</li>
+        <li>Invoices ISC directly for approved services and administrative overhead</li>
+        <li>Generates legitimate administration revenue ($250–700K/yr) that supports the Nation</li>
+        <li>Can potentially expand to administer JP for smaller Nations — growing the revenue base</li>
+      </ul>
+      <h3 class="s">Legal Revenue Linkage to EDC</h3>
+      <p class="b">The Program Administration Corp can then <strong>contract EDC subsidiaries</strong> for services needed to deliver Jordan's Principle programs:</p>
+      <ul class="rl">
+        <li>HR and staffing services → contracted to HoldCo services subsidiary</li>
+        <li>IT and records management → contracted to HoldCo</li>
+        <li>Procurement of medical/health equipment → contracted to Procurement Co.</li>
+        <li>Transportation logistics → contracted to Procurement Co.</li>
+        <li>Facility management → contracted to Construction/Services Co.</li>
+      </ul>
+    </div>
+    <div>
+      <div class="cp-box">
+        <strong style="color:var(--purple);">Why This Structure Works Legally</strong><br><br>
+        The JP Admin Corp administers government-approved service delivery — generating legitimate overhead revenue that flows to the Nation government.<br><br>
+        The EDC subsidiaries then earn market-rate revenue by providing contracted services to the JP Admin Corp — this is commercial revenue, entirely permissible.<br><br>
+        The result: JP indirectly generates EDC enterprise revenue without any improper diversion of federal program funds.
+      </div>
+      <div style="background:var(--navy);padding:16px;margin-top:14px;">
+        <div style="font-family:'DM Mono',monospace;font-size:8pt;color:var(--gold-light);margin-bottom:10px;letter-spacing:1px;">ESTIMATED ANNUAL REVENUE FLOW</div>
+        <div style="font-size:9pt;color:rgba(255,255,255,.8);line-height:1.8;">
+          JP Admin Corp admin overhead: <strong style="color:white;">$250–700K/yr</strong><br>
+          EDC contracts from JP Admin Corp: <strong style="color:white;">$150–400K/yr</strong><br>
+          Total JP-connected revenue potential: <strong style="color:var(--gold);">$400K–$1.1M/yr</strong><br>
+          <span style="font-size:8pt;color:rgba(255,255,255,.45);">Subject to ISC approval of admin overhead rates</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="s">HoldCo Board Governance Requirements</h2>
+  <div class="two">
+    <div>
+      <table class="dt">
+        <thead><tr><th>Board Position</th><th>Appointment</th><th>Required Expertise</th></tr></thead>
+        <tbody>
+          <tr><td>Board Chair</td><td>Board process</td><td>Governance; First Nations economic development</td></tr>
+          <tr><td>Nation Reps (2 seats)</td><td>Chief &amp; Council</td><td>Community accountability; strategic priorities</td></tr>
+          <tr><td>Independent — Finance</td><td>Board process</td><td>CPA/CFA; capital markets; financial reporting</td></tr>
+          <tr><td>Independent — Industry</td><td>Board process</td><td>Construction, agriculture, or real estate</td></tr>
+          <tr><td>Independent — Indigenous</td><td>Board process</td><td>First Nations enterprise governance</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3 class="s">Critical Governance Safeguards</h3>
+      <ul class="rl">
+        <li>Nation retains minimum <strong>51% ownership</strong> in all operating enterprises to preserve ISC procurement eligibility</li>
+        <li><strong>Conflict of interest policy</strong> — no Council member or family member may have undisclosed interest in any HoldCo subsidiary</li>
+        <li><strong>Enterprise accounts separated</strong> from Nation government accounts from Day 1</li>
+        <li><strong>Capital Allocation Policy</strong> — investments above $250K require HoldCo board approval; above $1M require Council notification</li>
+        <li><strong>Annual strategic plan</strong> approved by Council; zero operational interference in subsidiaries</li>
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S07 ECONOMIC PORTFOLIO ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">07 — Economic Opportunity Portfolio</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">07</div>
+    <div>
+      <div class="sec-head">Economic Opportunity Portfolio</div>
+      <div class="sec-lead">Five pillars designed to generate cash flow now, accumulate assets next, and compound wealth over decades — each sequenced to build on the one before it.</div>
+    </div>
+  </div>
+
+  <h2 class="s">Enterprise Development Pipeline</h2>
+  <table class="ep-table">
+    <thead>
+      <tr><th>Enterprise</th><th>Pillar</th><th>Launch</th><th>Total Capital</th><th>Nation Equity</th><th class="r">Yr 5 Revenue</th><th class="r">Yr 10 Revenue</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="b">Base Operators Ltd. (scale-up)</td><td>Procurement</td><td>Year 1</td><td>$450K</td><td>$50K (~11%)</td><td class="r">$1.5M</td><td class="r">$2.5M</td></tr>
+      <tr><td class="b">JP Program Administration Corp</td><td>Health Admin</td><td>Year 1</td><td>Minimal</td><td>$0</td><td class="r">$400K</td><td class="r">$700K</td></tr>
+      <tr><td class="b">Agricultural Land Leasing</td><td>Agriculture</td><td>Year 1</td><td>$0</td><td>$0</td><td class="r">$100K</td><td class="r">$200K</td></tr>
+      <tr><td class="b">DPWN Construction Ltd.</td><td>Construction</td><td>Year 2</td><td>$1.2M</td><td>$100K (~8%)</td><td class="r">$1.2M</td><td class="r">$2.5M</td></tr>
+      <tr><td class="b">Greenhouse Agriculture Enterprise</td><td>Agriculture</td><td>Year 3</td><td>$3–4M</td><td>$0–200K</td><td class="r">$200K</td><td class="r">$600K</td></tr>
+      <tr><td class="b">Highway Corridor Commercial / Industrial Park</td><td>Real Estate</td><td>Year 5</td><td>$10–15M</td><td>$500K–1M</td><td class="r">—</td><td class="r">$500K</td></tr>
+      <tr><td class="b">Energy Infrastructure Equity</td><td>Infra. Equity</td><td>Year 6+</td><td>$15–25M</td><td>$0–500K</td><td class="r">—</td><td class="r">$200K</td></tr>
+    </tbody>
+    <tfoot><tr><td colspan="5">Total Estimated Own-Source Revenue</td><td class="r">~$3.4M</td><td class="r">~$7.2M</td></tr></tfoot>
+  </table>
+  <div class="fn">Revenue projections are conservative scenario estimates. Nation equity amounts are post-grant maximums; in most cases Nation cash contribution will be lower once federal funding stacks are applied. See Section 08 for capital stack details.</div>
+
+  <div class="two" style="margin-top:24px;">
+    <div>
+      <h2 class="s">Pillar 1 — Procurement &amp; Services</h2>
+      <p class="b">The fastest path to enterprise revenue. Base Operators Ltd. is an existing vehicle. The opportunity is to scale it systematically using federal procurement targets, ISC supplier development funding, and a deliberate contract-winning strategy aligned with major regional projects.</p>
+      <ul class="rl">
+        <li>Facilities management, janitorial, environmental monitoring</li>
+        <li>Security, waste management, catering and camp support</li>
+        <li>Transportation and logistics for regional resource projects</li>
+        <li>Federal government facilities contracts (5% mandate — see Section 10)</li>
+      </ul>
+      <div class="ct">Heavy equipment fleet dramatically reduces launch costs. Margin profile: 10–18% EBITDA. Time to first revenue: 6–12 months from contract award.</div>
+    </div>
+    <div>
+      <h2 class="s">Pillar 2 — Construction &amp; Infrastructure</h2>
+      <p class="b">Construction is DPWN's most strategically significant near-term pillar. The existing heavy equipment fleet eliminates the largest launch cost. Joint venture with an established regional contractor in Year 2 provides immediate bonding capacity and expertise transfer.</p>
+      <ul class="rl">
+        <li>On-reserve housing construction — CMHC Section 95 and ISC funding</li>
+        <li>Regional infrastructure projects along Hwy 1 corridor</li>
+        <li>Industrial and civil works for Portage la Prairie area</li>
+        <li>Internalize Nation housing spending ($1–3M/yr currently external)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="two">
+    <div>
+      <h2 class="s">Pillar 4 — Agriculture &amp; Land-Based Enterprise</h2>
+      <p class="b">Reserve lands in one of Canada's most productive agricultural zones create immediate leasing income and a longer-term food enterprise pathway. This pillar aligns economic development with cultural values and demonstrates to the community that growth strengthens land relationships.</p>
+      <div class="three">
+        <div class="ic"><div class="ic-l">Immediate</div><div class="ic-v" style="font-size:12pt">Land Leasing</div><div class="ic-s">$50–150K/yr · Zero capital · Begin Year 1</div></div>
+        <div class="ic"><div class="ic-l">Year 3–5</div><div class="ic-v" style="font-size:12pt">Greenhouse</div><div class="ic-s">$3–4M total · AAFC funding · $200–500K/yr</div></div>
+        <div class="ic"><div class="ic-l">Year 6+</div><div class="ic-v" style="font-size:12pt">Food Processing</div><div class="ic-s">Nation-branded · $600K+ revenue · AAFC + ISC</div></div>
+      </div>
+    </div>
+    <div>
+      <h2 class="s">Pillar 5 — Strategic Infrastructure Equity</h2>
+      <p class="b">Long-term equity participation in energy and infrastructure — through Energy Holdings Ltd. — produces dividends with minimal operational overhead. This pillar should only be pursued once enterprise revenue is established and governance capacity is mature.</p>
+      <ul class="rl">
+        <li>Renewable energy (wind/solar) — NRCan Indigenous Clean Energy</li>
+        <li>Manitoba Hydro transmission partnership</li>
+        <li>Broadband/telecommunications — federal connectivity funding</li>
+        <li>Revenue participation on infrastructure crossing Nation lands</li>
+      </ul>
+      <div class="cg">Year 10: $200K–500K dividend income · Year 20: $1–3M compounding</div>
+    </div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S08 FUNDING STACK ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">08 — Federal Funding Stack Strategy</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">08</div>
+    <div>
+      <div class="sec-head">Federal Funding Stack Strategy</div>
+      <div class="sec-lead">The grant-first capital model: use $1 of Nation equity to unlock $8–$12 of total project investment. In many cases, Nation cash contribution is zero.</div>
+    </div>
+  </div>
+
+  <div class="cq">Core capital principle: Federal grants, loan guarantees, and below-market Indigenous financing programs are available specifically for First Nations enterprises. This strategy maximizes these before any Nation cash is committed. Nation capital is the last layer in the stack, not the first.</div>
+
+  <h2 class="s">Target Capital Structure by Project Type</h2>
+  <table class="dt">
+    <thead><tr><th>Project Type</th><th class="c">Federal Grants</th><th class="c">Loan Guarantees</th><th class="c">Low-Interest Debt</th><th class="c">Private Equity</th><th class="c">Nation Capital</th><th class="c">Leverage</th></tr></thead>
+    <tbody>
+      <tr><td class="b">Agriculture greenhouse</td><td class="c">60%</td><td class="c">—</td><td class="c">30%</td><td class="c">10%</td><td class="c" style="font-weight:700;color:var(--green);">0%</td><td class="c"><span class="p-hi">∞</span></td></tr>
+      <tr><td class="b">Construction company</td><td class="c">40%</td><td class="c">10%</td><td class="c">30%</td><td class="c">12%</td><td class="c" style="font-weight:700;color:var(--green);">8%</td><td class="c"><span class="p-hi">12:1</span></td></tr>
+      <tr><td class="b">Procurement enterprise</td><td class="c">55%</td><td class="c">—</td><td class="c">30%</td><td class="c">4%</td><td class="c" style="font-weight:700;color:var(--green);">11%</td><td class="c"><span class="p-hi">9:1</span></td></tr>
+      <tr><td class="b">Real estate development</td><td class="c">30%</td><td class="c">—</td><td class="c">40%</td><td class="c">25%</td><td class="c" style="font-weight:700;color:var(--green);">0–5%</td><td class="c"><span class="p-hi">10:1</span></td></tr>
+      <tr><td class="b">Energy infrastructure</td><td class="c">50%</td><td class="c">—</td><td class="c">30%</td><td class="c">20%</td><td class="c" style="font-weight:700;color:var(--green);">0%</td><td class="c"><span class="p-hi">∞</span></td></tr>
+      <tr><td class="b">Housing development</td><td class="c">40%</td><td class="c">—</td><td class="c">50%</td><td class="c">—</td><td class="c" style="font-weight:700;color:var(--green);">10%</td><td class="c"><span class="p-hi">10:1</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="s">Federal &amp; Indigenous Program Reference</h2>
+  <table class="dt">
+    <thead><tr><th>Program</th><th>Agency</th><th>Type</th><th>Typical Amount</th><th>DPWN Alignment</th></tr></thead>
+    <tbody>
+      <tr><td class="b">Community Opportunity Readiness Program (CORP)</td><td>ISC</td><td>Grant</td><td>$50K–$500K</td><td><span class="p-nav">High — Phase 1</span></td></tr>
+      <tr><td class="b">Lands &amp; Economic Development Services</td><td>ISC</td><td>Contribution</td><td>$100K–$2M</td><td><span class="p-nav">High — Pillars 1–3</span></td></tr>
+      <tr><td class="b">Indigenous Entrepreneurship Program</td><td>ISC</td><td>Grant + TA</td><td>$50K–$500K</td><td><span class="p-nav">High — Phase 1</span></td></tr>
+      <tr><td class="b">Community Economic Development Program</td><td>PrairiesCan</td><td>Contribution</td><td>$100K–$2M</td><td><span class="p-nav">High — Pillars 1–2</span></td></tr>
+      <tr><td class="b">Business Scale-Up &amp; Productivity</td><td>PrairiesCan</td><td>Repayable</td><td>$500K–$5M</td><td><span class="p-teal">Medium — Phase 2+</span></td></tr>
+      <tr><td class="b">Community Economic Diversification</td><td>PrairiesCan</td><td>Contribution</td><td>$200K–$2M</td><td><span class="p-nav">High — Phase 1–2</span></td></tr>
+      <tr><td class="b">Clean Energy for Rural &amp; Remote Communities</td><td>NRCan</td><td>Grant</td><td>$500K–$5M</td><td><span class="p-teal">Medium — Pillar 5</span></td></tr>
+      <tr><td class="b">Indigenous Natural Resource Partnerships</td><td>NRCan</td><td>Grant + Equity</td><td>$500K–$10M</td><td><span class="p-teal">Medium — Pillar 5</span></td></tr>
+      <tr><td class="b">Indigenous Equity Initiative</td><td>CIB</td><td>Low-Interest Loan</td><td>$10M–$250M</td><td><span class="p-grn">Phase 3+</span></td></tr>
+      <tr><td class="b">Section 95 Housing Program</td><td>CMHC</td><td>Forgivable Loan</td><td>$500K–$10M+</td><td><span class="p-nav">High — Pillar 2/3</span></td></tr>
+      <tr><td class="b">Rapid Housing Initiative</td><td>CMHC</td><td>Grant</td><td>$500K–$5M</td><td><span class="p-nav">High — Phase 2</span></td></tr>
+      <tr><td class="b">Indigenous Growth Fund</td><td>NACCA/AFIs</td><td>Equity / Loan</td><td>$50K–$1M</td><td><span class="p-nav">High — Phase 1–2</span></td></tr>
+      <tr><td class="b">Indigenous Entrepreneur Loan Program</td><td>BDC</td><td>Term Loan</td><td>$100K–$1M</td><td><span class="p-nav">High — Phase 1–2</span></td></tr>
+      <tr><td class="b">Indigenous Skills &amp; Employment Training</td><td>ESDC</td><td>Grant (Workforce)</td><td>$100K–$2M</td><td><span class="p-nav">High — All Pillars</span></td></tr>
+      <tr><td class="b">FNFA Debenture Financing</td><td>FNFA</td><td>Low-Cost Debt</td><td>$1M–$50M+</td><td><span class="p-crit">Blocked — audit first</span></td></tr>
+      <tr><td class="b">Agri-Food Indigenous Programs</td><td>AAFC</td><td>Contribution</td><td>$50K–$500K</td><td><span class="p-nav">High — Pillar 4</span></td></tr>
+      <tr><td class="b">MB Indigenous Business Programs</td><td>Province MB</td><td>Grant</td><td>$50K–$500K</td><td><span class="p-nav">High — Phase 1–2</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="s">Capital Stack Example — Greenhouse Agriculture Enterprise ($3.5M)</h2>
+  <div class="cstack">
+    <div class="cl" style="background:var(--navy);"><div><div class="cl-label">NRCan Clean Energy for Rural Communities</div><div class="cl-sub">Non-repayable grant · Renewable energy component eligible</div></div><div><div class="cl-amt">$700K</div><div class="cl-pct">20%</div></div></div>
+    <div class="cl" style="background:var(--teal);"><div><div class="cl-label">AAFC Agri-Food Indigenous Contribution</div><div class="cl-sub">Non-repayable · Agricultural enterprise development</div></div><div><div class="cl-amt">$525K</div><div class="cl-pct">15%</div></div></div>
+    <div class="cl" style="background:#2356A0;"><div><div class="cl-label">PrairiesCan Community Economic Development</div><div class="cl-sub">Non-repayable contribution · Prairie Indigenous community</div></div><div><div class="cl-amt">$875K</div><div class="cl-pct">25%</div></div></div>
+    <div class="cl" style="background:var(--green);"><div><div class="cl-label">NACCA Indigenous Growth Fund Loan</div><div class="cl-sub">Below-market rate · Equipment and working capital</div></div><div><div class="cl-amt">$875K</div><div class="cl-pct">25%</div></div></div>
+    <div class="cl" style="background:var(--slate);"><div><div class="cl-label">Private Equity / Strategic Partner</div><div class="cl-sub">Operator brings sector expertise; Nation retains 60%</div></div><div><div class="cl-amt">$525K</div><div class="cl-pct">15%</div></div></div>
+    <div class="cl" style="background:var(--gold);"><div><div class="cl-label">Nation Equity (HoldCo)</div><div class="cl-sub">Optional — project viable at zero Nation cash</div></div><div><div class="cl-amt">$0</div><div class="cl-pct">0%</div></div></div>
+  </div>
+  <p style="font-family:'DM Mono',monospace;font-size:8.5pt;color:var(--green);margin-bottom:8px;">→ Nation cash equity: $0 · Total leveraged: $3.5M · Federal grants cover 60% · Nation owns 60% of enterprise</p>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S09 CAPITAL STRATEGY ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">09 — Capital Strategy</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">09</div>
+    <div>
+      <div class="sec-head">Capital Strategy &amp; Deployment Policy</div>
+      <div class="sec-lead">A formal, board-adopted capital policy that protects Nation finances, sequences investment correctly, and satisfies the governance standards required by institutional funders.</div>
+    </div>
+  </div>
+
+  <h2 class="s">Capital Deployment Policy — Formal Rules</h2>
+  <div class="two">
+    <div>
+      <div class="ic" style="border-top:4px solid var(--red);">
+        <div class="ic-l">Rule 1 — DSCR Gate</div>
+        <div class="ic-v" style="font-size:14pt;">DSCR ≥ 1.25x</div>
+        <div class="ic-s">No commercial debt deployed until enterprise revenues establish a Debt Service Coverage Ratio of at least 1.25x. Non-negotiable.</div>
+      </div>
+    </div>
+    <div>
+      <div class="ic" style="border-top:4px solid var(--navy);">
+        <div class="ic-l">Rule 2 — Maximum Leverage</div>
+        <div class="ic-v" style="font-size:14pt;">60% Debt Cap</div>
+        <div class="ic-s">Total debt on any single project cannot exceed 60% of total project capital. Nation equity must be established before debt is layered.</div>
+      </div>
+    </div>
+    <div>
+      <div class="ic" style="border-top:4px solid var(--teal);">
+        <div class="ic-l">Rule 3 — Asset Horizon</div>
+        <div class="ic-v" style="font-size:14pt;">20-Year Minimum</div>
+        <div class="ic-s">Infrastructure and real estate assets must have minimum 20-year investment horizon before acquisition. Not for short-term trading.</div>
+      </div>
+    </div>
+    <div>
+      <div class="ic" style="border-top:4px solid var(--green);">
+        <div class="ic-l">Rule 4 — Profit Reinvestment</div>
+        <div class="ic-v" style="font-size:14pt;">7-Year Lock-In</div>
+        <div class="ic-s">Enterprise profits reinvested into the HoldCo portfolio for first 7 years. No distribution to Nation government until Year 8 (except agreed management fees).</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two">
+    <div>
+      <h2 class="s">Sequenced Capital Deployment</h2>
+      <table class="dt">
+        <thead><tr><th>Stage</th><th>Timeline</th><th>Capital Type</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td class="b"><span class="p-nav">Stage 1</span></td><td>Yr 1–2</td><td>Non-repayable grants only; zero Nation cash</td><td>$200K–$700K</td></tr>
+          <tr><td class="b"><span class="p-teal">Stage 2</span></td><td>Yr 2–5</td><td>Grants + NACCA/BDC below-market loans</td><td>$500K–$2M</td></tr>
+          <tr><td class="b"><span class="p-grn">Stage 3</span></td><td>Yr 4–8</td><td>CMHC + FNFA debenture (once eligible)</td><td>$2M–$10M</td></tr>
+          <tr><td class="b" style="color:var(--purple);">Stage 4</span></td><td>Yr 8–20</td><td>CIB + capital markets + institutional</td><td>$10M+</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h2 class="s">FNFA Access Strategy</h2>
+      <p class="b">FNFA provides the lowest-cost long-term debt available to First Nations — comparable to municipal bond rates, 150–250bps below commercial bank rates. Accessing FNFA is a critical Year 4–5 milestone.</p>
+      <ul class="rl">
+        <li><strong>Step 1:</strong> Audit remediation — clean FY2024 and FY2025 opinions required</li>
+        <li><strong>Step 2:</strong> FNFA Borrowing Member application (Year 2–3)</li>
+        <li><strong>Step 3:</strong> Demonstrate own-source revenue to support debt service</li>
+        <li><strong>Step 4:</strong> First debenture issuance — target Year 4–5</li>
+      </ul>
+      <div class="cg">Target: $5–10M FNFA borrowing capacity at Year 5 · Unlocks housing and land development at infrastructure pricing</div>
+    </div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S10 PROCUREMENT STRATEGY ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">10 — Procurement Strategy</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">10</div>
+    <div>
+      <div class="sec-head">Procurement Strategy</div>
+      <div class="sec-lead">Canada's 5% Indigenous procurement mandate creates a $1.5B annual opportunity. DPWN's target is $3–5M in contracts within 5 years.</div>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat n"><div class="stat-n">5%</div><div class="stat-l">Federal Indigenous Procurement Mandate</div></div>
+    <div class="stat g"><div class="stat-n">$30B</div><div class="stat-l">Annual Federal Procurement Spend</div></div>
+    <div class="stat t"><div class="stat-n">$1.5B</div><div class="stat-l">Annual Indigenous Contract Opportunity</div></div>
+    <div class="stat gr"><div class="stat-n">$3–5M</div><div class="stat-l">DPWN Target — Year 5</div></div>
+  </div>
+
+  <div class="two">
+    <div>
+      <h2 class="s">Federal Procurement Opportunity Map</h2>
+      <table class="dt">
+        <thead><tr><th>Sector</th><th>Target Client</th><th>DPWN Capability</th><th class="c">Year 1–3 Value</th></tr></thead>
+        <tbody>
+          <tr><td class="b">Facilities management</td><td>DND, RCMP, ISC facilities</td><td>Base Operators Ltd.</td><td class="c">$200–500K</td></tr>
+          <tr><td class="b">Environmental services</td><td>Environment Canada, ISC</td><td>Base Operators Ltd.</td><td class="c">$150–300K</td></tr>
+          <tr><td class="b">Transportation/logistics</td><td>ISC, federal programs</td><td>Base Operators Ltd.</td><td class="c">$100–250K</td></tr>
+          <tr><td class="b">Construction/maintenance</td><td>PSPC, CMHC projects</td><td>DPWN Construction</td><td class="c">$500K–1.5M</td></tr>
+          <tr><td class="b">Catering and camp support</td><td>Resource sector projects</td><td>Base Operators Ltd.</td><td class="c">$200–400K</td></tr>
+          <tr><td class="b">Health equipment procurement</td><td>JP Admin Corp</td><td>JP Procurement</td><td class="c">$150–400K</td></tr>
+        </tbody>
+        <tfoot><tr><td colspan="3">Year 1–3 Procurement Revenue Target</td><td class="r">$1.3M–$3.35M</td></tr></tfoot>
+      </table>
+    </div>
+    <div>
+      <h2 class="s">Procurement Strategy Requirements</h2>
+      <h3 class="s">Immediate (Year 1)</h3>
+      <ul class="rl">
+        <li>Register DPWN enterprises on the Indigenous Business Directory (IBD) — mandatory for 5% mandate contracts</li>
+        <li>Identify 3–5 federal contracts accessible through Buyandsell.gc.ca</li>
+        <li>Develop corporate capability statements for each pillar enterprise</li>
+        <li>Establish relationships with PSPC Indigenous procurement officers in Manitoba region</li>
+      </ul>
+      <h3 class="s">Year 2–3</h3>
+      <ul class="rl">
+        <li>Pursue Procurement Strategy for Aboriginal Business (PSAB) set-aside contracts</li>
+        <li>Target major infrastructure projects (Trans-Canada Hwy upgrades, Manitoba Hydro) for subcontract opportunities</li>
+        <li>Build bonding capacity through construction JV partner to access larger contracts</li>
+        <li>Apply for PSPC Supplier Diversity certification</li>
+      </ul>
+      <div class="cp-box">
+        <strong style="color:var(--purple);">Corporate ESG Procurement</strong><br>
+        Beyond federal mandates, major private sector companies (resource, energy, construction, logistics) operating near DPWN face growing pressure to demonstrate Indigenous procurement in ESG reporting. Base Operators Ltd. should be positioned as the preferred local Indigenous supplier for all major regional operators.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S11 IMPLEMENTATION ROADMAP ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">11 — Implementation Roadmap</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">11</div>
+    <div>
+      <div class="sec-head">Implementation Roadmap</div>
+      <div class="sec-lead">A phased, gated execution plan anchored by the Nation Economic Transformation Office — the internal engine that keeps this strategy moving across election cycles.</div>
+    </div>
+  </div>
+
+  <h2 class="s">Nation Economic Transformation Office</h2>
+  <div class="ct">The Nation Economic Transformation Office (NETO) is a dedicated internal function created in Year 1 to own the execution of this strategy. It is not a consulting engagement — it is a permanent internal capacity. NETO reports to the HoldCo board, not to Chief and Council directly, insulating economic execution from political cycles.</div>
+  <div class="four">
+    <div class="ic"><div class="ic-l">Function 1</div><div class="ic-v" style="font-size:11pt">Funding Applications</div><div class="ic-s">Active grant pipeline; funder relationships; application development</div></div>
+    <div class="ic"><div class="ic-l">Function 2</div><div class="ic-v" style="font-size:11pt">Project Development</div><div class="ic-s">Feasibility studies; business plans; capital stack modeling</div></div>
+    <div class="ic"><div class="ic-l">Function 3</div><div class="ic-v" style="font-size:11pt">Investor Relations</div><div class="ic-s">Federal agency relationships; lender management; partner development</div></div>
+    <div class="ic"><div class="ic-l">Function 4</div><div class="ic-v" style="font-size:11pt">Enterprise Incubation</div><div class="ic-s">Supports new subsidiary launches; management hiring; governance setup</div></div>
+  </div>
+
+  <h2 class="s">Implementation Gantt — 10-Year Execution Plan</h2>
+  <div class="gantt">
+    <table class="gantt-t">
+      <thead>
+        <tr>
+          <th class="lc">Initiative / Work Stream</th>
+          <th>Q1–Q2<br>Yr1</th><th>Q3–Q4<br>Yr1</th><th>Yr2</th><th>Yr3</th><th>Yr4</th><th>Yr5</th><th>Yr6–7</th><th>Yr8–10</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="tl">🔴 Audit Remediation — FY2023 Disclaimer</td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:50%"></div></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td></tr>
+        <tr><td class="tl">🔴 Bridging Finance — Legal Assessment &amp; Resolution</td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:40%"></div></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td></tr>
+        <tr><td class="tl">EDC Restructuring &amp; HoldCo Board Seated</td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td></tr>
+        <tr><td class="tl">Nation Economic Transformation Office (NETO)</td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gbo" style="height:15px;border-radius:2px;"></div></td><td class="gc"><div class="gbo" style="height:15px;border-radius:2px;"></div></td><td class="gc"><div class="gbo" style="height:15px;border-radius:2px;"></div></td><td class="gc"><div class="gbo" style="height:15px;border-radius:2px;"></div></td><td class="gc"><div class="gbo" style="height:15px;border-radius:2px;"></div></td><td class="gc"><div class="gbo" style="height:15px;border-radius:2px;"></div></td></tr>
+        <tr><td class="tl">IBD Registration &amp; Federal Procurement Launch</td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">JP Program Administration Corp — Formation</td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">Procurement Scale-Up (Base Operators Ltd.)</td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">Agricultural Land Leasing — Commence</td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">FNFA Membership Application &amp; Eligibility</td><td class="gc"></td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"></td><td class="gc"></td><td class="gc"></td></tr>
+        <tr><td class="tl">DPWN Construction Ltd. — JV Launch</td><td class="gc"></td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">Greenhouse Agriculture Enterprise</td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">Highway Corridor Commercial / Industrial Park</td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">Energy Infrastructure Equity (Energy Holdings)</td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"><div class="gb gb1" style="width:100%"></div></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+        <tr><td class="tl">Dakota Plains Sovereign Wealth Fund — Seeding</td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"></td><td class="gc"><div class="gb gb2" style="width:100%"></div></td><td class="gc"><div class="gb gb3" style="width:100%"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:var(--navy);"></div>Phase 1 Setup</div>
+    <div class="li"><div class="ld" style="background:var(--teal);"></div>Phase 2 Operations</div>
+    <div class="li"><div class="ld" style="background:var(--green);"></div>Phase 3 Growth &amp; Accumulation</div>
+    <div class="li"><div class="ld" style="background:var(--gold);"></div>Ongoing / Continuous</div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S12 SOVEREIGN WEALTH FUND ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">12 — Sovereign Wealth Framework</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">12</div>
+    <div>
+      <div class="sec-head">Dakota Plains Sovereign Wealth Framework</div>
+      <div class="sec-lead">Converting enterprise profits into permanent, intergenerational Nation wealth — the ultimate objective of this entire strategy.</div>
+    </div>
+  </div>
+
+  <div class="cq">A sovereign wealth fund is not the starting point of economic development — it is the destination. Once enterprise profits compound beyond what can be productively reinvested in the portfolio, they flow into the Fund to generate passive returns in perpetuity. DPWN should begin designing the Fund now, so the governance framework is ready when the capital arrives.</div>
+
+  <div class="two">
+    <div>
+      <h2 class="s">Fund Structure &amp; Governance</h2>
+      <h3 class="s">Establishment Trigger</h3>
+      <p class="b">The Dakota Plains Sovereign Wealth Fund is established when HoldCo enterprise revenues consistently generate surplus above reinvestment needs. Target trigger: Year 8–10, when OSR exceeds $3M annually and HoldCo has accumulated $2M+ in reinvestable surplus.</p>
+      <h3 class="s">Fund Sources</h3>
+      <ul class="rl">
+        <li>Enterprise dividends from HoldCo portfolio (primary)</li>
+        <li>Resource revenue and land lease income above operating costs</li>
+        <li>Infrastructure equity returns from energy and telecommunications</li>
+        <li>Capital gains from strategic asset dispositions</li>
+        <li>One-time Nation government contributions as authorized</li>
+      </ul>
+      <h3 class="s">Governance Framework</h3>
+      <ul class="rl">
+        <li>Independent Investment Committee (separate from HoldCo board)</li>
+        <li>Professional investment manager — competitive selection process</li>
+        <li>Intergenerational mandate embedded in founding charter</li>
+        <li>Annual community reporting on Fund performance and balance</li>
+        <li>Spending policy: draw maximum 4% annually in perpetuity</li>
+      </ul>
+    </div>
+    <div>
+      <h2 class="s">Asset Allocation Policy</h2>
+      <p class="b">The Fund's allocation is designed to balance long-term growth with income generation and inflation protection:</p>
+      <div class="swf-alloc">
+        <div class="swf-seg" style="width:40%;background:var(--navy);">40% Public Mkts</div>
+        <div class="swf-seg" style="width:25%;background:var(--teal);">25% Infra</div>
+        <div class="swf-seg" style="width:20%;background:var(--green);">20% Real Est.</div>
+        <div class="swf-seg" style="width:15%;background:var(--gold);">15% PE</div>
+      </div>
+      <table class="dt" style="margin-top:12px;">
+        <thead><tr><th>Asset Class</th><th class="r">Allocation</th><th>Rationale</th></tr></thead>
+        <tbody>
+          <tr><td>Public markets (equities/bonds)</td><td class="r">40%</td><td>Liquidity, inflation protection, diversification</td></tr>
+          <tr><td>Infrastructure (public/private)</td><td class="r">25%</td><td>Inflation-linked returns; Nation expertise advantage</td></tr>
+          <tr><td>Real estate</td><td class="r">20%</td><td>Passive income; hedges against land value appreciation</td></tr>
+          <tr><td>Private equity / venture</td><td class="r">15%</td><td>High-return Indigenous business ecosystem investments</td></tr>
+        </tbody>
+      </table>
+
+      <h2 class="s">Capital Distribution Policy</h2>
+      <table class="dt">
+        <thead><tr><th>Use of Fund Returns</th><th class="r">Allocation</th></tr></thead>
+        <tbody>
+          <tr><td>Reinvestment into Fund (compounding)</td><td class="r">40%</td></tr>
+          <tr><td>Reinvestment into HoldCo enterprise portfolio</td><td class="r">30%</td></tr>
+          <tr><td>Community programs and services</td><td class="r">30%</td></tr>
+        </tbody>
+      </table>
+
+      <h2 class="s">Wealth Fund Trajectory</h2>
+      <div style="background:var(--navy);padding:14px 16px;">
+        <div style="font-family:'DM Mono',monospace;font-size:8pt;color:var(--gold-light);margin-bottom:8px;letter-spacing:1px;">FUND CAPITALIZATION TARGETS</div>
+        <div style="font-size:9pt;color:rgba(255,255,255,.8);line-height:1.9;">
+          Year 8: Fund established · First seeding<br>
+          Year 10: <strong style="color:white;">$2–5M</strong><br>
+          Year 15: <strong style="color:white;">$10–15M</strong><br>
+          Year 20: <strong style="color:white;">$20–30M</strong><br>
+          Year 30: <strong style="color:var(--gold);">$40–60M — intergenerational wealth</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S13 RISK MANAGEMENT ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">13 — Risk Management</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">13</div>
+    <div>
+      <div class="sec-head">Risk Management Framework</div>
+      <div class="sec-lead">Six risk categories with severity ratings, specific triggers, and actionable mitigations — the risk framework funders and lenders need to see.</div>
+    </div>
+  </div>
+
+  <div class="risk-grid">
+    <div class="risk-card">
+      <div class="rk-head"><div class="rk-t">Financial Governance Risk</div><span class="p-crit">CRITICAL</span></div>
+      <div class="rk-b">FY2023 Disclaimer of Opinion blocks institutional access. If FY2024 is also disclaimed, the 2–3 year clean audit requirement for FNFA is pushed to Year 5+ — delaying the entire Phase 3 capital strategy.</div>
+      <div class="rk-m"><div class="rk-ml">Mitigation</div>Appoint qualified Finance Officer/Controller within 30 days. Commission internal audit remediation plan. Engage auditors pre-year-end to resolve specific deficiencies. Target clean FY2024. This is the single highest-priority action in the strategy.</div>
+    </div>
+    <div class="risk-card">
+      <div class="rk-head"><div class="rk-t">Bridging Finance Liability</div><span class="p-crit">CRITICAL</span></div>
+      <div class="rk-b">The $10.2M contingent liability could crystallize against the Nation's balance sheet, eliminating the accumulated surplus that underpins this strategy's financial foundation. Impact depends on consolidation and guarantee structure.</div>
+      <div class="rk-m"><div class="rk-ml">Mitigation</div>Retain Indigenous-specialized legal counsel immediately. Obtain formal legal opinion on consolidation, guarantee exposure, and resolution options. Ring-fence or resolve before any capital commitment above $500K. No major enterprise launch until this is legally contained.</div>
+    </div>
+    <div class="risk-card">
+      <div class="rk-head"><div class="rk-t">Political Governance Risk</div><span class="p-lo">HIGH</span></div>
+      <div class="rk-b">Election cycles create leadership transitions that can disrupt multi-decade strategies. New councils may redirect enterprise profits to short-term priorities, appoint unqualified board members, or reverse governance structures.</div>
+      <div class="rk-m"><div class="rk-ml">Mitigation</div>Embed economic mandate in Band Council Resolution adopted by full Council. Independent HoldCo board provides operational continuity regardless of election outcomes. Annual community reporting creates accountability beyond any single council. Whitecap Dakota model: economic strategy survived 5+ election cycles through governance embedding.</div>
+    </div>
+    <div class="risk-card">
+      <div class="rk-head"><div class="rk-t">Enterprise Capacity Risk</div><span class="p-lo">HIGH</span></div>
+      <div class="rk-b">The Nation has strong program administration but limited commercial enterprise experience. Operating businesses require different skills — contract management, cash flow forecasting, client management. Promotion of program staff into commercial roles without transition support is a common failure mode.</div>
+      <div class="rk-m"><div class="rk-ml">Mitigation</div>Joint ventures with experienced operators in Phase 1–2 transfer expertise. Professional enterprise management hires — HoldCo CEO by Year 2. Do not promote program administrators into commercial leadership without commercial training. Use advisory support to build capacity alongside enterprise development, not as substitute for it.</div>
+    </div>
+    <div class="risk-card">
+      <div class="rk-head"><div class="rk-t">Grant Dependency Risk</div><span class="p-med">MEDIUM</span></div>
+      <div class="rk-b">A strategy heavily dependent on federal grants creates vulnerability to program changes, political shifts, and eligibility reclassification. Over-reliance on any single funding source is a structural risk even in a grant-first model.</div>
+      <div class="rk-m"><div class="rk-ml">Mitigation</div>Multi-source stacking across ISC, PrairiesCan, CMHC, NRCan, AAFC simultaneously — no project dependent on a single program. Pursue multi-year contribution agreements where available. Build own-source revenue quickly to reduce grant dependency by Year 5. Maintain active files with 6+ federal agencies.</div>
+    </div>
+    <div class="risk-card">
+      <div class="rk-head"><div class="rk-t">Capital &amp; Overextension Risk</div><span class="p-lo">HIGH</span></div>
+      <div class="rk-b">Strong liquidity and visible opportunities create risk of premature or simultaneous capital deployment. Over-commitment in Phase 1 before enterprises are profitable could deplete the capital base needed for higher-return Phase 3 investments.</div>
+      <div class="rk-m"><div class="rk-ml">Mitigation</div>Formal Capital Deployment Policy adopted by HoldCo board (see Section 09). Mandatory 6-month reserve fund. Phase-gated investment: each enterprise must be cash-flow positive before next pillar launches. Maximum 40% concentration in any single project. DSCR 1.25x rule enforced without exception.</div>
+    </div>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S14 10-YEAR PROJECTION ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">14 — 10-Year Economic Impact</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">14</div>
+    <div>
+      <div class="sec-head">10-Year Economic Impact Projection</div>
+      <div class="sec-lead">Conservative scenario projections built on comparable Nation development trajectories — credible targets for planning, accountability, and funder confidence.</div>
+    </div>
+  </div>
+
+  <div class="chart">
+    <div class="ch-t">Own-Source Revenue Growth Trajectory — Conservative Scenario ($000s)</div>
+    <div class="ch-s">Assumes audit remediation complete Year 2 · Bridging resolved Year 1 · HoldCo board seated Q2 Year 1</div>
+    <div class="bars">
+      <div class="bg"><div class="bv">$200K</div><div class="bar" style="height:5px;background:#A8C4E0;"></div><div class="bl">Yr 1</div></div>
+      <div class="bg"><div class="bv">$500K</div><div class="bar" style="height:13px;background:#6BA0CC;"></div><div class="bl">Yr 2</div></div>
+      <div class="bg"><div class="bv">$1.2M</div><div class="bar" style="height:31px;background:var(--teal);"></div><div class="bl">Yr 3</div></div>
+      <div class="bg"><div class="bv">$1.7M</div><div class="bar" style="height:44px;background:var(--teal);"></div><div class="bl">Yr 4</div></div>
+      <div class="bg"><div class="bv">$2.2M</div><div class="bar" style="height:57px;background:var(--navy-light);"></div><div class="bl">Yr 5</div></div>
+      <div class="bg"><div class="bv">$2.8M</div><div class="bar" style="height:73px;background:var(--navy-mid);"></div><div class="bl">Yr 6</div></div>
+      <div class="bg"><div class="bv">$3.3M</div><div class="bar" style="height:86px;background:var(--navy-mid);"></div><div class="bl">Yr 7</div></div>
+      <div class="bg"><div class="bv">$3.8M</div><div class="bar" style="height:99px;background:var(--navy);"></div><div class="bl">Yr 8</div></div>
+      <div class="bg"><div class="bv">$4.2M</div><div class="bar" style="height:109px;background:var(--navy);"></div><div class="bl">Yr 9</div></div>
+      <div class="bg"><div class="bv" style="color:var(--gold);font-weight:700;">$4.6M+</div><div class="bar" style="height:120px;background:var(--gold);"></div><div class="bl" style="color:var(--gold);font-weight:700;">Yr 10</div></div>
+    </div>
+    <div class="legend">
+      <div class="li"><div class="ld" style="background:#A8C4E0;"></div>Phase 1</div>
+      <div class="li"><div class="ld" style="background:var(--teal);"></div>Phase 2</div>
+      <div class="li"><div class="ld" style="background:var(--navy);"></div>Phase 3</div>
+      <div class="li"><div class="ld" style="background:var(--gold);"></div>Year 10 target</div>
+    </div>
+  </div>
+
+  <h2 class="s">Comprehensive 10-Year Impact Model</h2>
+  <table class="pt">
+    <thead>
+      <tr><th class="l">Indicator</th><th>Yr 1</th><th>Yr 2</th><th>Yr 3</th><th>Yr 5</th><th>Yr 7</th><th>Yr 10</th></tr>
+    </thead>
+    <tbody>
+      <tr class="hl"><td class="l">Own-Source Revenue (Total)</td><td>$200K</td><td>$500K</td><td>$1.2M</td><td>$2.2M</td><td>$3.3M</td><td>$4.6M+</td></tr>
+      <tr><td class="l">— Procurement &amp; Services</td><td>$50K</td><td>$200K</td><td>$500K</td><td>$1.0M</td><td>$1.5M</td><td>$2.0M</td></tr>
+      <tr><td class="l">— JP Health Admin Corp</td><td>$75K</td><td>$200K</td><td>$300K</td><td>$400K</td><td>$500K</td><td>$700K</td></tr>
+      <tr><td class="l">— Construction Enterprise</td><td>—</td><td>$100K</td><td>$400K</td><td>$700K</td><td>$1.0M</td><td>$1.2M</td></tr>
+      <tr><td class="l">— Agriculture &amp; Land</td><td>$75K</td><td>$100K</td><td>$200K</td><td>$400K</td><td>$600K</td><td>$800K</td></tr>
+      <tr><td class="l">— Real Estate / Lease Income</td><td>—</td><td>—</td><td>—</td><td>$100K</td><td>$300K</td><td>$500K</td></tr>
+      <tr><td class="l">— Energy Dividends</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>$200K</td></tr>
+      <tr class="hl"><td class="l">OSR as % of Total Revenue</td><td>~3%</td><td>~5%</td><td>~9%</td><td>~14%</td><td>~20%</td><td>~27%</td></tr>
+      <tr><td class="l">Direct Nation Employment (FTEs)</td><td>3–5</td><td>8–12</td><td>15–20</td><td>25–40</td><td>50–70</td><td>75–100</td></tr>
+      <tr><td class="l">Total Capital Leveraged (Cumulative)</td><td>$400K</td><td>$1.2M</td><td>$3.0M</td><td>$8M</td><td>$15M</td><td>$25M+</td></tr>
+      <tr><td class="l">Federal Grants Secured (Cumulative)</td><td>$200K</td><td>$600K</td><td>$1.5M</td><td>$4M</td><td>$8M</td><td>$14M+</td></tr>
+      <tr><td class="l">Nation Cash Deployed (Cumulative)</td><td>$0</td><td>$50K</td><td>$100K</td><td>$300K</td><td>$600K</td><td>$1M</td></tr>
+      <tr class="hl"><td class="l">Sovereign Wealth Fund Balance</td><td>—</td><td>—</td><td>—</td><td>—</td><td>$500K</td><td>$2–5M</td></tr>
+    </tbody>
+  </table>
+  <div class="fn">Conservative scenario. Optimistic scenario: add 30–40% to Year 5–10 figures if FNFA access achieved by Year 4 and major highway commercial project proceeds. Nation cash deployed figures assume successful grant-first execution; actual Nation cash outlay may be zero in most Phase 1–2 projects.</div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ S15 ADVISORY CONSIDERATIONS ═══════════════ -->
+<div class="rh"><div class="rh-l">DPWN · NATION WEALTH STRATEGY · 2026</div><div class="rh-c">15 — Advisory &amp; Implementation Capacity</div><div class="rh-r">Confidential</div></div>
+<div class="cp">
+  <div class="sec-intro">
+    <div class="sec-num">15</div>
+    <div>
+      <div class="sec-head">Advisory &amp; Implementation Capacity</div>
+      <div class="sec-lead">The specific expertise required to execute this strategy — and how to access it without creating dependency.</div>
+    </div>
+  </div>
+
+  <p class="b">Economic development strategies are not self-executing. The gap between a well-designed strategy and successful outcomes is filled by specialized expertise that most Nations at DPWN's stage cannot maintain internally. This section identifies exactly what expertise is required and when.</p>
+
+  <h2 class="s">Implementation Capacity Requirements by Domain</h2>
+  <table class="dt">
+    <thead><tr><th>Expertise Domain</th><th>When Needed</th><th>Internal vs. External</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td class="b">Indigenous capital stacking &amp; grant architecture</td><td>Year 1 — ongoing</td><td>External specialist retained; transition to internal grant manager by Year 2</td><td><span class="p-crit">Immediate</span></td></tr>
+      <tr><td class="b">Audit remediation &amp; financial governance</td><td>Year 1 — 18 months</td><td>External CPA firm; Finance Officer hire (internal)</td><td><span class="p-crit">Immediate</span></td></tr>
+      <tr><td class="b">Corporate governance &amp; HoldCo structuring</td><td>Year 1 — 6 months</td><td>External Indigenous corporate lawyer; one-time engagement</td><td><span class="p-crit">Immediate</span></td></tr>
+      <tr><td class="b">Procurement strategy &amp; IBD positioning</td><td>Year 1 — Year 3</td><td>External procurement advisor; transition to internal by Year 2</td><td><span class="p-lo">High</span></td></tr>
+      <tr><td class="b">Infrastructure finance &amp; CIB/FNFA navigation</td><td>Year 3 — Year 7</td><td>External infrastructure finance advisor per project</td><td><span class="p-teal">Phase 3</span></td></tr>
+      <tr><td class="b">Sovereign wealth planning &amp; investment management</td><td>Year 7 — Year 10</td><td>External investment advisor; competitive selection</td><td><span class="p-teal">Phase 3+</span></td></tr>
+    </tbody>
+  </table>
+
+  <h2 class="s">Internal Capacity Hires — Priority Sequence</h2>
+  <div class="two">
+    <div>
+      <table class="dt">
+        <thead><tr><th>Role</th><th>Timeline</th><th>Funding Source</th></tr></thead>
+        <tbody>
+          <tr><td class="b">Finance Officer / Controller</td><td>Q1 Year 1</td><td>ISC core + contribution</td></tr>
+          <tr><td class="b">Director of Economic Development</td><td>Q2 Year 1</td><td>ISC economic development</td></tr>
+          <tr><td class="b">Grants Development Specialist</td><td>Year 2</td><td>PrairiesCan + ISC contribution</td></tr>
+          <tr><td class="b">HoldCo CEO / COO</td><td>Year 2–3</td><td>Self-funded from enterprise revenue</td></tr>
+          <tr><td class="b">Enterprise Managers (per subsidiary)</td><td>Year 2–5</td><td>Enterprise operating revenue</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h3 class="s">Advisory Partner Selection Criteria</h3>
+      <ul class="rl">
+        <li>Demonstrated track record with First Nations at comparable stages — require specific Nation references</li>
+        <li>Expertise in federal funding landscape (ISC, PrairiesCan, CMHC, CIB) — not generic business consulting</li>
+        <li>Ability to develop and submit grant applications, not just advise on them</li>
+        <li>Willingness to build Nation capacity, not create perpetual advisory dependency</li>
+        <li>Fixed-scope engagements with deliverable-based milestones — not open retainers</li>
+        <li>Avoid firms that position the Nation as a passive partner in "opportunities" the advisor controls</li>
+      </ul>
+    </div>
+  </div>
+  <div class="ca">
+    <div class="ca-t">⚠ What to Avoid</div>
+    <p>Avoid large national consulting firms with limited Indigenous economic development specialization charging premium rates for generic frameworks. Avoid advisors who produce planning documents without implementation support — this Blueprint already exists. What is needed now is execution. Avoid "advisory support" retainers without clear deliverables, milestones, and accountability metrics tied to specific Phase 1 outcomes.</p>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ CHIEF & COUNCIL BRIEFING ═══════════════ -->
+<div class="ccb">
+  <div class="ccb-bg"></div>
+  <div class="ccb-c">
+    <div class="ccb-tag">Chief &amp; Council Decision Brief — Confidential</div>
+    <div class="ccb-title">The Situation, The Opportunity,<br>and What Leadership Must Decide</div>
+    <p style="color:rgba(255,255,255,.72);font-size:10.5pt;line-height:1.75;max-width:640px;margin-bottom:20px;">This document represents a rigorous, multi-year Nation Wealth Strategy built on DPWN's actual financial position, proven First Nations development models, and real federal funding programs available today. The opportunity described is real. Whether it is realized depends entirely on decisions this Council makes in the next 90 days.</p>
+
+    <div class="ccb-grid">
+      <div class="ccb-card">
+        <div class="ccb-ct">Where We Are</div>
+        <div class="ccb-cb">$8.7M cash. $11.5M surplus. $15M in capital assets. A heavy equipment fleet. Jordan's Principle delivering $11M+ in programs. Reserve lands on Canada's most productive agricultural corridor. 85km from Winnipeg. We have more than most Nations had when they began their transformation.</div>
+      </div>
+      <div class="ccb-card">
+        <div class="ccb-ct">What Is Blocking Us</div>
+        <div class="ccb-cb">Two specific issues — not structural — must be resolved: the FY2023 audit uncertainty blocks institutional lending and most capital programs, and the Bridging Finance contingent liability creates balance sheet risk. Both are solvable. Neither requires major capital. Both require immediate legal and financial action.</div>
+      </div>
+      <div class="ccb-card">
+        <div class="ccb-ct">What Is Possible</div>
+        <div class="ccb-cb">$4.6M+ own-source revenue in 10 years. 75–100 employment positions. $25M+ capital leveraged — largely from federal grants, not Nation cash. A sovereign wealth fund of $20–40M by Year 20. The foundations of true economic independence, comparable to Whitecap, Muskeg Lake, and Membertou.</div>
+      </div>
+    </div>
+
+    <div class="ccb-dec">
+      <div class="ccb-dt">Six Decisions Required from Chief &amp; Council — Within 90 Days</div>
+      <div class="ccb-di">
+        <div class="ccb-dn">01</div>
+        <div><div class="ccb-dtt">Authorize audit remediation immediately</div><div class="ccb-db">Hire Finance Officer or contracted CPA firm. Commission internal audit remediation plan. Set target of clean FY2024 audit. This single action unlocks FNFA borrowing, institutional lending, and $10M+ in capital programs.</div></div>
+      </div>
+      <div class="ccb-di">
+        <div class="ccb-dn">02</div>
+        <div><div class="ccb-dtt">Retain legal counsel on Bridging Finance</div><div class="ccb-db">Authorize Indigenous-specialized legal counsel to assess exposure, consolidation treatment, and resolution options. No major capital commitment above $500K until formally contained with legal opinion.</div></div>
+      </div>
+      <div class="ccb-di">
+        <div class="ccb-dn">03</div>
+        <div><div class="ccb-dtt">Adopt this strategy by Band Council Resolution</div><div class="ccb-db">Formally adopt the Nation Wealth Strategy as a Nation-level document — not a Council document. Pass a BCR committing future Councils to the framework. This is how Whitecap's strategy survived five elections.</div></div>
+      </div>
+      <div class="ccb-di">
+        <div class="ccb-dn">04</div>
+        <div><div class="ccb-dtt">Authorize EDC restructuring &amp; board recruitment</div><div class="ccb-db">Authorize the HoldCo governance restructuring and commence independent board director recruitment immediately. The HoldCo board must be seated within 6 months to begin Phase 1 enterprise launches.</div></div>
+      </div>
+      <div class="ccb-di">
+        <div class="ccb-dn">05</div>
+        <div><div class="ccb-dtt">Hire Director of Economic Development</div><div class="ccb-db">Authorize the Director of Economic Development hire through ISC funding. This person owns the execution of this strategy, coordinates the Nation Economic Transformation Office, and ensures Phase 1 milestones are met. This document cannot execute itself.</div></div>
+      </div>
+      <div class="ccb-di">
+        <div class="ccb-dn">06</div>
+        <div><div class="ccb-dtt">Establish the Nation Economic Transformation Office</div><div class="ccb-db">Authorize the creation of NETO as a permanent internal economic execution function reporting to the HoldCo board. This is the institutional engine that keeps the strategy moving across election cycles, federal program changes, and leadership transitions.</div></div>
+      </div>
+    </div>
+    <p style="color:rgba(255,255,255,.4);font-size:9pt;line-height:1.7;margin-top:22px;font-style:italic;">Dakota Plains Wahpeton Nation has the land, the financial foundation, the corporate structures, and the geographic positioning to become one of the economically leading Nations in Manitoba. The strategy exists. The programs exist. The capital is available. What is required now is the governance decision to begin.</p>
+  </div>
+</div>
+<div class="sep"></div>
+
+<!-- ═══════════════ BACK COVER ═══════════════ -->
+<div class="back">
+  <div>
+    <div class="back-nation">Dakota Plains Wahpeton Nation</div>
+    <div class="back-mono">NATION WEALTH STRATEGY — INTEGRATED MASTER BLUEPRINT<br>MARCH 2026 · PORTAGE LA PRAIRIE AREA, MANITOBA, CANADA<br>PREPARED FOR CHIEF &amp; COUNCIL AND ECONOMIC DEVELOPMENT BOARD</div>
+  </div>
+  <div class="back-disc">Confidential &amp; Proprietary. Contains forward-looking projections based on comparable First Nations development trajectories and conservative benchmarking. Not financial or investment advice. All capital decisions require review by qualified financial and legal counsel. Federal program details subject to change; verify eligibility directly with agencies.</div>
+</div>
+
+</div><!-- .page -->
+</body>
+</html>
